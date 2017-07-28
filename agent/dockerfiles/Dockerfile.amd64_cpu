@@ -1,0 +1,12 @@
+FROM carml/mxnet:base-ppc64le-gpu as builder
+MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
+
+RUN go get -u -v github.com/rai-project/mxnet/mxnet-agent && \
+    cd $GOPATH/src/github.com/rai-project/mxnet/mxnet-agent && \
+    glide install && \
+    go install
+
+FROM ubuntu:latest
+
+COPY --from=builder /go/bin/mxnet-agent /usr/bin
+ENTRYPOINT ["mxnet-agent", "--debug", "--verbose"]

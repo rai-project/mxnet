@@ -1,0 +1,25 @@
+name: ResNeXt50
+container:
+  amd64:
+    gpu: raiproject/...
+    cpu: raiproject/...
+  ppc64le:
+    gpu: ...
+framework: mxnet
+version: 1.0
+type: cnn
+input:
+  type: image
+  dimensions: [1, 3, 224, 224]
+output:
+  type: label
+dataset_name: ImageNet
+features_url: http://data.dmlc.ml/mxnet/models/imagenet/resnext/synset.txt
+graph_url: http://data.dmlc.ml/mxnet/models/imagenet/resnext/50-layers/resnext-50-symbol.json
+weights_url: http://data.dmlc.ml/mxnet/models/imagenet/resnext/50-layers/resnext-50-0000.params
+references:
+  - https://arxiv.org/pdf/1611.05431.pdf
+description: >
+  ResNeXt is a simple, highly modularized network architecture for image classification.
+  This network consists of 50 layers.
+  ResNeXt50 achieves 22.2% and 5.6% top-1 error on ImageNet1K.

@@ -1,0 +1,16 @@
+name: FCIS
+framework: mxnet
+version: 1.0
+type: cnn
+input:
+  type: image
+  dimensions: [1, 3, 224, 224]
+output:
+  type: label
+dataset_name: ImageNet
+features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+trained_url: https://1drv.ms/u/s!Am-5JzdW2XHzhqMJZmVOEDgfde8_tg
+references:
+  - https://arxiv.org/pdf/1611.07709.pdf
+description: >
+  FCIS is a fully convolutional end-to-end solution for instance segmentation, which won the first place in COCO segmentation challenge 2016.

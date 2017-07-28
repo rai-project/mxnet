@@ -1,0 +1,52 @@
+FROM rai/cuda_ppc64le:cudnn-8.0
+MAINTAINER Carl Pearson <pearson@illinois.edu>
+
+# install the core library
+RUN apt-get update && apt-get install -y build-essential git libopenblas-dev libopencv-dev
+
+# Install mxnet
+WORKDIR /
+RUN git clone --recursive https://github.com/dmlc/mxnet && cd mxnet && \
+    cp make/config.mk . && \
+    echo "USE_CUDA=1" >>config.mk && \
+    echo "USE_CUDA_PATH=/usr/local/cuda" >>config.mk && \
+    echo "USE_CUDNN=1" >>config.mk && \
+    echo "USE_BLAS=openblas" >>config.mk && \
+    make -j$(nproc) ADD_LDFLAGS=-L/usr/local/cuda/lib64/stubs
+RUN ln -s /mxnet/lib/libmxnet.so /usr/lib/libmxnet.so
+
+ENV LD_LIBRARY_PATH /usr/local/cuda/lib64:$LD_LIBRARY_PATH
+
+#Install Go
+ENV GIMME_GO_VERSION "1.8.3"
+ENV GIMME_OS "linux"
+ENV GIMME_ARCH "ppc64le"
+
+ADD https://raw.githubusercontent.com/travis-ci/gimme/master/gimme /usr/bin/gimme
+RUN chmod +x /usr/bin/gimme && \
+    gimme
+
+ENV GOROOT "/root/.gimme/versions/go${GIMME_GO_VERSION}.${GIMME_OS}.${GIMME_ARCH}"
+ENV PATH ${GOROOT}/bin:${PATH}
+
+ENV GOPATH "/go"
+ENV PATH $GOPATH/bin:$PATH
+
+#Install Glide
+RUN go get github.com/Masterminds/glide
+
+# Get Go bindings
+RUN go get -u -v github.com/songtianyi/go-mxnet-predictor && \
+    sed -i "/prefix=/c prefix=\/mxnet" $GOPATH/src/github.com/songtianyi/go-mxnet-predictor/travis/mxnet.pc && \
+    cp $GOPATH/src/github.com/songtianyi/go-mxnet-predictor/travis/mxnet.pc /usr/lib/pkgconfig && \
+    pkg-config --libs mxnet && \
+    cd $GOPATH/src/github.com/songtianyi/go-mxnet-predictor && go get -v .../.
+ENV LD_LIBRARY_PATH /mxnet/lib:$LD_LIBRARY_PATH
+
+## Get the rai-project mxnet agent
+RUN go get github.com/rai-project/dlframework
+WORKDIR $GOPATH/src/github.com/rai-project/dlframework
+RUN glide install
+WORKDIR $GOPATH/src/github.com/rai-project/mxnet/mxnet-agent
+RUN go build
+ENTRYPOINT ["./mxnet-agent", "--debug", "--verbose"]

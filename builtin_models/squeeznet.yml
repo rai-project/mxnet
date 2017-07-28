@@ -1,0 +1,49 @@
+name: SqueezeNet # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: ~0.1 # framework version contraint
+version: 1.1 # version information in semantic version format
+container: # containers used to perform model prediction
+           # multiple platforms can be specified
+  amd64:
+    gpu: raiproject/carml-mxnet:amd64-cpu
+    cpu: raiproject/carml-mxnet:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-mxnet:ppc64le-gpu
+    gpu: raiproject/carml-mxnet:ppc64le-gpu
+description: >
+  Squeezenet achieves similar results to AlexNet, at 50x fewer parameters and 1/500th the size.
+  Small models are more feasible to deploy on hardware with limited memory, require less
+  communication during distributed training, and are easier to distribute to clients.
+  SqueezeNet achieves 57.5% and 80.3% top-1 and top-5 acuracty on ImageNet.
+references: # references to papers / websites / etc.. describing the model
+  - https://arxiv.org/pdf/1602.07360v4.pdf
+# license of the model
+license: MIT
+# inputs to the model
+inputs:
+  # first input type for the model
+  - type: image
+    # description of the first input
+    description: the input image
+    parameters: # type parameters
+      dimensions: [1, 3, 224, 224]
+output:
+  # the type of the output
+  type: feature
+  # a description of the output parameter
+  description: the output label
+  parameters:
+    # type parameters
+    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+model: # specifies model graph and weights resources
+  base_url: http://data.dmlc.ml/models/imagenet/squeezenet/
+  graph_path: squeezenet_v1.1-symbol.json
+  weights_path: squeezenet_v1.1-0000.params
+  is_archive: false # if set, then the base_url is a url to an archive
+                    # the graph_path and weights_path then denote the
+                    # file names of the graph and weights within the archive
+attributes: # extra network attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: ImageNet # dataset used to for training
+  manifest_author: abduld

@@ -1,0 +1,88 @@
+syntax = "proto3";
+
+import "github.com/gogo/protobuf/gogoproto/gogo.proto";
+
+option (gogoproto.gostring_all) = true;
+option (gogoproto.equal_all) = true;
+option (gogoproto.verbose_equal_all) = true;
+option (gogoproto.goproto_stringer_all) = false;
+option (gogoproto.stringer_all) = true;
+option (gogoproto.populate_all) = true;
+option (gogoproto.testgen_all) = true;
+option (gogoproto.benchgen_all) = true;
+option (gogoproto.marshaler_all) = true;
+option (gogoproto.sizer_all) = true;
+option (gogoproto.unmarshaler_all) = true;
+
+option go_package = "mxnet";
+
+package carml.org.dlframework.frameworks.mxnet;
+
+message Graph {
+  message NodeEntry {
+    int64 node_id = 1 [
+      (gogoproto.jsontag) = "node_id,omitempty",
+      (gogoproto.moretags) = "yaml:\"node_id,omitempty\""
+    ];
+    int64 index = 2 [
+      (gogoproto.jsontag) = "index,omitempty",
+      (gogoproto.moretags) = "yaml:\"input,omitempty\""
+    ];
+    int64 version = 3 [
+      (gogoproto.jsontag) = "version,omitempty",
+      (gogoproto.moretags) = "yaml:\"version,omitempty\""
+    ];
+  }
+
+  message Node {
+    string op = 1 [
+      (gogoproto.jsontag) = "op,omitempty",
+      (gogoproto.moretags) = "yaml:\"op,omitempty\""
+    ];
+    map<string, string> param = 2 [
+      (gogoproto.jsontag) = "param,omitempty",
+      (gogoproto.moretags) = "yaml:\"params,omitempty\""
+    ];
+    string name = 3 [ (gogoproto.moretags) = "yaml:\"name,omitempty\"" ];
+    repeated NodeEntry inputs = 4 [
+      (gogoproto.jsontag) = "inputs,omitempty",
+      (gogoproto.moretags) = "yaml:\"inputs,omitempty\""
+    ];
+    int64 backward_source_id = 5 [
+      (gogoproto.jsontag) = "backward_source_id,omitempty",
+      (gogoproto.moretags) = "yaml:\"backward_source_id,omitempty\""
+    ];
+    repeated int64 control_deps = 6 [
+      (gogoproto.jsontag) = "control_deps,omitempty",
+      (gogoproto.moretags) = "yaml:\"control_deps,omitempty\""
+    ];
+  }
+
+  message Attributes {
+    map<string, string> attrs = 1 [
+      (gogoproto.jsontag) = "attrs,omitempty",
+      (gogoproto.moretags) = "yaml:\"attrs,omitempty\""
+    ];
+  }
+
+  repeated Node nodes = 1 [
+    (gogoproto.jsontag) = "nodes,omitempty",
+    (gogoproto.moretags) = "yaml:\"nodes,omitempty\""
+  ];
+  repeated int64 arg_nodes = 2 [
+    (gogoproto.jsontag) = "arg_nodes,omitempty",
+    (gogoproto.moretags) = "yaml:\"arg_nodes,omitempty\""
+  ];
+  repeated int64 node_row_ptr = 3 [
+    (gogoproto.jsontag) = "node_row_ptr,omitempty",
+    (gogoproto.moretags) = "yaml:\"node_row_ptr,omitempty\""
+  ];
+  repeated NodeEntry heads = 4 [
+    (gogoproto.jsontag) = "heads,omitempty",
+    (gogoproto.moretags) = "yaml:\"heads,omitempty\""
+  ];
+  Attributes attrs = 5 [
+    (gogoproto.jsontag) = "attrs,omitempty",
+    (gogoproto.moretags) = "yaml:\"attrs,omitempty\""
+  ];
+}

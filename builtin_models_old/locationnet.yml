@@ -1,0 +1,20 @@
+name: LocationNet
+framework: mxnet
+version: 1.0
+type: cnn
+input:
+  type: image
+  dimensions: [1, 3, 224, 224]
+output:
+  type: coordinates
+dataset_name: MultimediaCommons
+features_url: https://raw.githubusercontent.com/multimedia-berkeley/tutorials/master/grids.txt
+graph_url: https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-symbol.json
+weights_url: https://s3.amazonaws.com/mmcommons-tutorial/models/RN101-5k500-0012.params
+mean_image: [123.68, 116.779, 103.939]
+references:
+  - https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45488.pdf
+description: >
+  A photo-localization convolutional neural network based on the Inception architecture.
+  LocationNet is able to localize 3.6% of images at street level, and 48% at continent level.
+  The network was trained on 19M EXIF geotagged photos and consists of 97,321,048 parameters.
