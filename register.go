@@ -5,7 +5,7 @@ import (
 
 	assetfs "github.com/elazarl/go-bindata-assetfs"
 	"github.com/rai-project/dlframework"
-	"github.com/rai-project/dlframework/frameworks/common"
+	"github.com/rai-project/dlframework/framework"
 )
 
 var FrameworkManifest = dlframework.FrameworkManifest{
@@ -34,5 +34,5 @@ func assetFS() *assetfs.AssetFS {
 }
 
 func init() {
-	common.Register(FrameworkManifest, assetFS())
+	framework.Register(FrameworkManifest, assetFS())
 }

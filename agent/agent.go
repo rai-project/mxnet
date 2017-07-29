@@ -17,7 +17,7 @@ import (
 
 	"github.com/rai-project/uuid"
 
-	common "github.com/rai-project/dlframework/frameworks/common/agent"
+	common "github.com/rai-project/dlframework/framework/agent"
 	predict "github.com/rai-project/mxnet/predict"
 )
 
