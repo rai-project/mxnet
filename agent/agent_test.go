@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/rai-project/config"
 	dl "github.com/rai-project/dlframework"
@@ -28,6 +29,7 @@ func XXXTestModelRegistration(t *testing.T) {
 func TestGRPCRegistration(t *testing.T) {
 	RegisterRegistryServer()
 	RegisterPredictorServer()
+	time.Sleep(3 * time.Second)
 }
 
 func TestMain(m *testing.M) {

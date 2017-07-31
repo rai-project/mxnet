@@ -12,6 +12,6 @@ var (
 
 func init() {
 	config.AfterInit(func() {
-		log = logger.New().WithField("pkg", "mxnet-agent")
+		log = logger.New().WithField("cmd", "mxnet-agent")
 	})
 }

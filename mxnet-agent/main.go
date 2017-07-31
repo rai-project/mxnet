@@ -5,12 +5,15 @@ import (
 	"net"
 	"os"
 	"path/filepath"
+	"strconv"
 
 	"github.com/Unknwon/com"
+	"github.com/facebookgo/freeport"
 	"github.com/fatih/color"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
 	"github.com/rai-project/mxnet/agent"
+	"github.com/rai-project/utils"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 )
@@ -18,42 +21,65 @@ import (
 var (
 	isDebug   bool
 	isVerbose bool
+	local     bool
 	appSecret string
 	cfgFile   string
 )
 
-const (
-	DEFAULTPORT = "9999"
-)
+func freePort() (string, error) {
+	port, err := freeport.Get()
+	if err != nil {
+		return "", err
+	}
+	return strconv.Itoa(port), nil
+}
 
-func getAddress(port string) string {
-	return "localhost:" + port
+func getAddress(port string) (string, error) {
+	var address string
+	var err error
+	if local {
+		address, err = utils.GetLocalIp()
+	} else {
+		address, err = utils.GetExternalIp()
+	}
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s:%s", address, port), nil
 }
 
 // RootCmd represents the base command when called without any subcommands
 var RootCmd = &cobra.Command{
 	Use:   "mxnet-agent",
-	Short: "A brief description of your application",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Runs the carml MXNet agent",
 	RunE: func(cmd *cobra.Command, args []string) error {
 		port, found := os.LookupEnv("PORT")
 		if !found {
-			port = DEFAULTPORT
+			p, err := freePort()
+			if err != nil {
+				return err
+			}
+			port = p
 		}
-		server := agent.Register()
 
-		address := getAddress(port)
+		address, err := getAddress(port)
+		if err != nil {
+			return err
+		}
+
+		agent.RegisterRegistryServer()
+
+		server, err := agent.RegisterPredictorServer(address)
+		if err != nil {
+			return err
+		}
+
 		lis, err := net.Listen("tcp", address)
 		if err != nil {
 			return errors.Wrapf(err, "failed to listen on ip %s", address)
 		}
 
-		log.Infof("mxnet service is listening on %s", address)
+		// log.Debug("mxnet service is listening on %s", address)
 
 		server.Serve(lis)
 		server.GracefulStop()
@@ -64,14 +90,11 @@ to quickly create a Cobra application.`,
 func init() {
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports Persistent Flags, which, if defined here,
-	// will be global for your application.
-
-	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.mxnet-agent.yaml)")
+	RootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.carml_config.yaml)")
 	RootCmd.PersistentFlags().BoolVarP(&isVerbose, "verbose", "v", false, "Toggle verbose mode.")
 	RootCmd.PersistentFlags().BoolVarP(&isDebug, "debug", "d", false, "Toggle debug mode.")
 	RootCmd.PersistentFlags().StringVarP(&appSecret, "secret", "s", "", "The application secret.")
+	RootCmd.PersistentFlags().BoolVarP(&local, "local", "l", false, "Listen on local address.")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -87,7 +110,7 @@ func initConfig() {
 
 	color.NoColor = false
 	opts := []config.Option{
-		config.AppName("mxnet-agent"),
+		config.AppName("carml"),
 		config.ColorMode(true),
 	}
 	if com.IsFile(cfgFile) {
@@ -95,9 +118,8 @@ func initConfig() {
 			cfgFile = c
 		}
 		opts = append(opts, config.ConfigFileAbsolutePath(cfgFile))
-	} else {
-		opts = append(opts, config.ConfigString(""))
 	}
+
 	if appSecret != "" {
 		opts = append(opts, config.AppSecret(appSecret))
 	}

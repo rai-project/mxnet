@@ -11,9 +11,11 @@ import (
 	"github.com/pkg/errors"
 	rgrpc "github.com/rai-project/grpc"
 	"github.com/rai-project/mxnet"
+	"github.com/rai-project/registry"
 	context "golang.org/x/net/context"
 
 	dl "github.com/rai-project/dlframework"
+	"github.com/rai-project/utils"
 
 	"github.com/rai-project/uuid"
 
@@ -78,7 +80,7 @@ func (p *predictorServer) Predict(ctx context.Context, req *dl.PredictRequest) (
 	}, nil
 }
 
-func RegisterRegistryServer() *grpc.Server {
+func RegisterRegistryServer() (*grpc.Server, error) {
 	var grpcServer *grpc.Server
 	grpcServer = rgrpc.NewServer(dl.RegistryServiceDescription)
 	svr := &registryServer{
@@ -90,20 +92,28 @@ func RegisterRegistryServer() *grpc.Server {
 	}
 	svr.PublishInRegistery()
 	dl.RegisterRegistryServer(grpcServer, svr)
-	return grpcServer
+	return grpcServer, nil
 }
 
-func RegisterPredictorServer() *grpc.Server {
-	var grpcServer *grpc.Server
-	grpcServer = rgrpc.NewServer(dl.PredictorServiceDescription)
+func RegisterPredictorServer(host string) (*grpc.Server, error) {
+	grpcServer := rgrpc.NewServer(dl.PredictorServiceDescription)
+
 	svr := &predictorServer{
 		Predictor: common.Predictor{
+			Host: host,
 			Base: common.Base{
 				Framework: mxnet.FrameworkManifest,
 			},
 		},
 	}
-	svr.PublishInRegistery()
+	go func() {
+		utils.Every(
+			registry.Config.Timeout/2,
+			func() {
+				svr.PublishInRegistery()
+			},
+		)
+	}()
 	dl.RegisterPredictorServer(grpcServer, svr)
-	return grpcServer
+	return grpcServer, nil
 }
