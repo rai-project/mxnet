@@ -29,7 +29,6 @@ _testmain.go
 .srclib-store/
 node_modules/
 vendor/
-*.pb.go
 .env
 nsqd.*.dat
 .env.private
