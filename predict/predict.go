@@ -5,7 +5,6 @@ import (
 	"image"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 
@@ -15,7 +14,6 @@ import (
 
 	"github.com/anthonynsimon/bild/parallel"
 	"github.com/anthonynsimon/bild/transform"
-	"github.com/k0kubun/pp"
 	"github.com/pkg/errors"
 	"github.com/rai-project/dlframework"
 	common "github.com/rai-project/dlframework/framework/predict"
@@ -71,7 +69,7 @@ func (p *ImagePredictor) GetWeightsUrl() string {
 	if model.GetModel().GetIsArchive() {
 		return model.GetModel().GetBaseUrl()
 	}
-	return path.Join(model.GetModel().GetBaseUrl(), model.GetModel().GetWeightsPath())
+	return strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/" + model.GetModel().GetWeightsPath()
 }
 
 func (p *ImagePredictor) GetGraphUrl() string {
@@ -79,8 +77,7 @@ func (p *ImagePredictor) GetGraphUrl() string {
 	if model.GetModel().GetIsArchive() {
 		return model.GetModel().GetBaseUrl()
 	}
-	pp.Println(model.GetModel())
-	return path.Join(model.GetModel().GetBaseUrl(), model.GetModel().GetGraphPath())
+	return strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/" + model.GetModel().GetGraphPath()
 }
 
 func (p *ImagePredictor) GetFeaturesUrl() string {
@@ -148,14 +145,13 @@ func (p *ImagePredictor) Preprocess(input interface{}) (interface{}, error) {
 }
 
 func (p *ImagePredictor) Download() error {
-
-	if _, err := downloadmanager.Download(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
 		return err
 	}
-	if _, err := downloadmanager.Download(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
 		return err
 	}
-	if _, err := downloadmanager.Download(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
 		return err
 	}
 	return nil
