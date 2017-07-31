@@ -81,6 +81,8 @@ func (p *predictorServer) Predict(ctx context.Context, req *dl.PredictRequest) (
 }
 
 func RegisterRegistryServer() (*grpc.Server, error) {
+	log.Info("populating registry")
+
 	var grpcServer *grpc.Server
 	grpcServer = rgrpc.NewServer(dl.RegistryServiceDescription)
 	svr := &registryServer{
@@ -90,12 +92,21 @@ func RegisterRegistryServer() (*grpc.Server, error) {
 			},
 		},
 	}
-	svr.PublishInRegistery()
+	go func() {
+		utils.Every(
+			registry.Config.Timeout/2,
+			func() {
+				svr.PublishInRegistery()
+			},
+		)
+	}()
 	dl.RegisterRegistryServer(grpcServer, svr)
 	return grpcServer, nil
 }
 
 func RegisterPredictorServer(host string) (*grpc.Server, error) {
+	log.Info("registering predictor service at ", host)
+
 	grpcServer := rgrpc.NewServer(dl.PredictorServiceDescription)
 
 	svr := &predictorServer{
