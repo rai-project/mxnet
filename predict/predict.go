@@ -15,6 +15,7 @@ import (
 
 	"github.com/anthonynsimon/bild/parallel"
 	"github.com/anthonynsimon/bild/transform"
+	"github.com/k0kubun/pp"
 	"github.com/pkg/errors"
 	"github.com/rai-project/dlframework"
 	common "github.com/rai-project/dlframework/framework/predict"
@@ -78,6 +79,7 @@ func (p *ImagePredictor) GetGraphUrl() string {
 	if model.GetModel().GetIsArchive() {
 		return model.GetModel().GetBaseUrl()
 	}
+	pp.Println(model.GetModel())
 	return path.Join(model.GetModel().GetBaseUrl(), model.GetModel().GetGraphPath())
 }
 
@@ -146,6 +148,7 @@ func (p *ImagePredictor) Preprocess(input interface{}) (interface{}, error) {
 }
 
 func (p *ImagePredictor) Download() error {
+
 	if _, err := downloadmanager.Download(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
 		return err
 	}

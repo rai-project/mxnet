@@ -67,9 +67,12 @@ var RootCmd = &cobra.Command{
 			return err
 		}
 
-		agent.RegisterRegistryServer()
+		registeryServer, err := agent.RegisterRegistryServer()
+		if err != nil {
+			return err
+		}
 
-		server, err := agent.RegisterPredictorServer(address)
+		predictorServer, err := agent.RegisterPredictorServer(address)
 		if err != nil {
 			return err
 		}
@@ -81,8 +84,11 @@ var RootCmd = &cobra.Command{
 
 		// log.Debug("mxnet service is listening on %s", address)
 
-		server.Serve(lis)
-		server.GracefulStop()
+		defer registeryServer.GracefulStop()
+		defer predictorServer.GracefulStop()
+
+		go registeryServer.Serve(lis)
+		predictorServer.Serve(lis)
 		return nil
 	},
 }
