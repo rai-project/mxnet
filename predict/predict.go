@@ -234,6 +234,7 @@ func (p *ImagePredictor) Predict(input interface{}) (*dlframework.PredictionFeat
 	for ii, prob := range probabilities {
 		rprobs[ii] = &dlframework.PredictionFeature{
 			Index:       int64(ii),
+			Name:        p.features[ii],
 			Probability: prob,
 		}
 	}
