@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/rai-project/tracer"
+
 	_ "image/gif"
 	_ "image/jpeg"
 	_ "image/png"
@@ -145,6 +147,9 @@ func (p *ImagePredictor) Preprocess(input interface{}) (interface{}, error) {
 }
 
 func (p *ImagePredictor) Download() error {
+	span := tracer.StartSpan("Downloading model")
+	defer span.Finish()
+
 	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
 		return err
 	}
