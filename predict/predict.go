@@ -212,10 +212,6 @@ func (p *ImagePredictor) getPredictor(ctx context.Context) error {
 		modelInputShape[ii] = uint32(v)
 	}
 
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "CreatePredictor"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
 	pred, err := gomxnet.CreatePredictor(symbol,
 		params,
 		gomxnet.Device{gomxnet.CPU_DEVICE, 0},
@@ -243,12 +239,12 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		return nil, errors.New("expecting []float32 input in predict function")
 	}
 
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "SetInputData"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
+	span, _ := opentracing.StartSpanFromContext(ctx, "SetInputData")
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
+	}
+	if span != nil {
+		span.Finish()
 	}
 
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ForwardInference"); span != nil {

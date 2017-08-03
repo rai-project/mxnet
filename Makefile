@@ -17,7 +17,7 @@ logrus-fix:
 generate: clean generate-models
 
 generate-proto:
-	protoc --plugin=protoc-gen-go=${GOPATH}/bin/protoc-gen-go -I. -I$(GOPATH)/src --gogofaster_out=plugins=grpc:. proto/mxnet.proto
+	protoc --gogofaster_out=Mgoogle/protobuf/any.proto=github.com/gogo/protobuf/types,plugins=grpc:. -Iproto -I$(GOPATH)/src proto/mxnet.proto
 
 generate-models:
 	go-bindata -nomemcopy -prefix builtin_models/ -pkg mxnet -o builtin_models_static.go -ignore=.DS_Store  -ignore=README.md builtin_models/...
