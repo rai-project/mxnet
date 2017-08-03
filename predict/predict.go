@@ -173,7 +173,7 @@ func (p *ImagePredictor) Download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) getPredictor(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ExtractPredictor"); span != nil {
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "GetPredictor"); span != nil {
 		ctx = newCtx
 		defer span.Finish()
 	}
@@ -212,6 +212,10 @@ func (p *ImagePredictor) getPredictor(ctx context.Context) error {
 		modelInputShape[ii] = uint32(v)
 	}
 
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "CreatePredictor"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
 	pred, err := gomxnet.CreatePredictor(symbol,
 		params,
 		gomxnet.Device{gomxnet.CPU_DEVICE, 0},
@@ -226,7 +230,10 @@ func (p *ImagePredictor) getPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlframework.PredictionFeatures, error) {
-
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
 	if err := p.getPredictor(ctx); err != nil {
 		return nil, err
 	}
@@ -236,10 +243,18 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		return nil, errors.New("expecting []float32 input in predict function")
 	}
 
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "SetInputData"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
 	}
 
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ForwardInference"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
 	if err := p.predictor.Forward(); err != nil {
 		return nil, err
 	}

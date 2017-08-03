@@ -8,6 +8,7 @@ import (
 
 	"google.golang.org/grpc"
 
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	rgrpc "github.com/rai-project/grpc"
 	"github.com/rai-project/mxnet"
@@ -52,10 +53,19 @@ func (p *predictorServer) Predict(ctx context.Context, req *dl.PredictRequest) (
 	}
 	defer reader.Close()
 
-	img, _, err := image.Decode(reader)
+	var img image.Image
+
+	func() {
+		if span, newCtx := opentracing.StartSpanFromContext(ctx, "DecodeImage"); span != nil {
+			ctx = newCtx
+			defer span.Finish()
+		}
+		img, _, err = image.Decode(reader)
+	}()
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to read input as image")
 	}
+
 	data, err := predictor.Preprocess(ctx, img)
 	if err != nil {
 		return nil, err
