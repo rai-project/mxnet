@@ -33,7 +33,7 @@ import:
 - package: github.com/rai-project/utils
 - package: github.com/rai-project/uuid
 - package: github.com/sirupsen/logrus
-  version: ~1.0.2
+  version: ^1.0.0
 - package: github.com/songtianyi/go-mxnet-predictor
   subpackages:
   - mxnet
