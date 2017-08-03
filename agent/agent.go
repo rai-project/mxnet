@@ -42,7 +42,7 @@ func (p *predictorServer) Predict(ctx context.Context, req *dl.PredictRequest) (
 		return nil, err
 	}
 	defer predictor.Close()
-	if err := predictor.Download(); err != nil {
+	if err := predictor.Download(ctx); err != nil {
 		return nil, err
 	}
 
@@ -56,12 +56,12 @@ func (p *predictorServer) Predict(ctx context.Context, req *dl.PredictRequest) (
 	if err != nil {
 		return nil, errors.Wrapf(err, "unable to read input as image")
 	}
-	data, err := predictor.Preprocess(img)
+	data, err := predictor.Preprocess(ctx, img)
 	if err != nil {
 		return nil, err
 	}
 
-	probs, err := predictor.Predict(data)
+	probs, err := predictor.Predict(ctx, data)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/rai-project/tracer"
+	context "golang.org/x/net/context"
 
 	_ "image/gif"
 	_ "image/jpeg"
@@ -16,6 +16,7 @@ import (
 
 	"github.com/anthonynsimon/bild/parallel"
 	"github.com/anthonynsimon/bild/transform"
+	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/dlframework"
 	common "github.com/rai-project/dlframework/framework/predict"
@@ -109,7 +110,13 @@ func (p *ImagePredictor) GetFeaturesPath() string {
 	return filepath.Join(p.workDir, model.GetName()+".features")
 }
 
-func (p *ImagePredictor) Preprocess(input interface{}) (interface{}, error) {
+func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (interface{}, error) {
+
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Preprocess"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
+
 	img, ok := input.(image.Image)
 	if !ok {
 		return nil, errors.New("expecting an image input")
@@ -146,23 +153,30 @@ func (p *ImagePredictor) Preprocess(input interface{}) (interface{}, error) {
 	return res, nil
 }
 
-func (p *ImagePredictor) Download() error {
-	span := tracer.StartSpan("Downloading model")
-	defer span.Finish()
+func (p *ImagePredictor) Download(ctx context.Context) error {
 
-	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadingModel"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
+
+	if _, err := downloadmanager.DownloadFile(ctx, p.GetGraphUrl(), p.GetGraphPath()); err != nil {
 		return err
 	}
-	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(ctx, p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
 		return err
 	}
-	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(ctx, p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
 		return err
 	}
 	return nil
 }
 
-func (p *ImagePredictor) getPredictor() error {
+func (p *ImagePredictor) getPredictor(ctx context.Context) error {
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ExtractPredictor"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
 	if p.predictor != nil {
 		return nil
 	}
@@ -211,9 +225,9 @@ func (p *ImagePredictor) getPredictor() error {
 	return nil
 }
 
-func (p *ImagePredictor) Predict(input interface{}) (*dlframework.PredictionFeatures, error) {
+func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlframework.PredictionFeatures, error) {
 
-	if err := p.getPredictor(); err != nil {
+	if err := p.getPredictor(ctx); err != nil {
 		return nil, err
 	}
 
