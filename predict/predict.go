@@ -128,7 +128,7 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 	}
 	img = transform.Resize(img, int(imageDims[2]), int(imageDims[3]), transform.Linear)
 
-	meanImage, err := p.GetMeanImage()
+	meanImage, err := p.GetMeanImage(ctx, common.NoMeanImageURLProcessor)
 	if err != nil || meanImage == nil {
 		meanImage = []float32{0, 0, 0}
 	}
