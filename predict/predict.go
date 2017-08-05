@@ -173,14 +173,16 @@ func (p *ImagePredictor) Download(ctx context.Context) error {
 	return nil
 }
 
-func (p *ImagePredictor) getPredictor(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "GetPredictor"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
+func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	if p.predictor != nil {
 		return nil
 	}
+
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "LoadPredictor"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
+	}
+
 	symbol, err := ioutil.ReadFile(p.GetGraphPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
@@ -231,7 +233,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		ctx = newCtx
 		defer span.Finish()
 	}
-	if err := p.getPredictor(ctx); err != nil {
+	if err := p.loadPredictor(ctx); err != nil {
 		return nil, err
 	}
 
