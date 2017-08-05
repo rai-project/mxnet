@@ -16,6 +16,7 @@ import (
 	"github.com/rai-project/dlframework"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
+	raiimage "github.com/rai-project/image"
 	gomxnet "github.com/songtianyi/go-mxnet-predictor/mxnet"
 )
 
