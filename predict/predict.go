@@ -150,6 +150,7 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 			}
 		}
 	})
+
 	return res, nil
 }
 
