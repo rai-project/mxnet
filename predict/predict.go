@@ -10,12 +10,7 @@ import (
 
 	context "golang.org/x/net/context"
 
-	_ "image/gif"
-	_ "image/jpeg"
-	_ "image/png"
-
 	"github.com/anthonynsimon/bild/parallel"
-	"github.com/anthonynsimon/bild/transform"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/dlframework"
@@ -117,7 +112,7 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 		defer span.Finish()
 	}
 
-	img, ok := input.(image.Image)
+	inputImage, ok := input.(image.Image)
 	if !ok {
 		return nil, errors.New("expecting an image input")
 	}
@@ -126,7 +121,11 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 	if err != nil {
 		return nil, err
 	}
-	img = transform.Resize(img, int(imageDims[2]), int(imageDims[3]), transform.Linear)
+
+	img, err := raiimage.Resize(ctx, inputImage, int(imageDims[2]), int(imageDims[3]))
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to resize input image")
+	}
 
 	meanImage, err := p.GetMeanImage(ctx, common.NoMeanImageURLProcessor)
 	if err != nil || meanImage == nil {
