@@ -68,7 +68,11 @@ func (p *ImagePredictor) GetWeightsUrl() string {
 	if model.GetModel().GetIsArchive() {
 		return model.GetModel().GetBaseUrl()
 	}
-	return strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/" + model.GetModel().GetWeightsPath()
+	baseURL := ""
+	if model.GetModel().GetBaseUrl() != "" {
+		baseURL = strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/"
+	}
+	return baseURL + model.GetModel().GetWeightsPath()
 }
 
 func (p *ImagePredictor) GetGraphUrl() string {
@@ -106,6 +110,11 @@ func (p *ImagePredictor) GetFeaturesPath() string {
 	return filepath.Join(p.workDir, model.GetName()+".features")
 }
 
+func (p *ImagePredictor) GetMeanPath() string {
+	model := p.Model
+	return filepath.Join(p.workDir, model.GetName()+".mean")
+}
+
 func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (interface{}, error) {
 
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Preprocess"); span != nil {
@@ -127,15 +136,14 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to resize input image")
 	}
-
-	meanImage, err := p.GetMeanImage(ctx, common.NoMeanImageURLProcessor)
-	if err != nil || meanImage == nil {
-		meanImage = []float32{0, 0, 0}
-	}
-
 	b := img.Bounds()
 	height := b.Max.Y - b.Min.Y // image height
 	width := b.Max.X - b.Min.X  // image width
+
+	mean, err := p.GetMeanImage(ctx, common.NoMeanImageURLProcessor)
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get mean image")
+	}
 
 	res := make([]float32, 3*height*width)
 	parallel.Line(height, func(start, end int) {
@@ -144,13 +152,12 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 		for y := start; y < end; y++ {
 			for x := 0; x < width; x++ {
 				r, g, b, _ := img.At(x+b.Min.X, y+b.Min.Y).RGBA()
-				res[y*w+x] = float32(r>>8) - meanImage[0]
-				res[w*h+y*w+x] = float32(g>>8) - meanImage[1]
-				res[2*w*h+y*w+x] = float32(b>>8) - meanImage[2]
+				res[y*w+x] = float32(r>>8) - mean[2]
+				res[w*h+y*w+x] = float32(g>>8) - mean[1]
+				res[2*w*h+y*w+x] = float32(b>>8) - mean[0]
 			}
 		}
 	})
-
 	return res, nil
 }
 
@@ -242,12 +249,8 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		return nil, errors.New("expecting []float32 input in predict function")
 	}
 
-	span, _ := opentracing.StartSpanFromContext(ctx, "SetInputData")
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
-	}
-	if span != nil {
-		span.Finish()
 	}
 
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ForwardInference"); span != nil {
