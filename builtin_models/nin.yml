@@ -12,12 +12,11 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  An image-classification network struture where small perceptrons slide over input maps, similar to a CNN.
-  This enhances local modeling, allowing for simpler classification layers that are easier to interpret.
-  The network consists of 3 stacked layers, each of which is a 3-layer perceptron.
-  NIN achieved 35.69% on IFAR-100 in 2014.
+  This model is a pretrained model on ILSVRC2012[1] dataset.
+  It is able to achieve 58.8% Top-1 Accuracy and 81.3% Top-5 accuracy on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1312.4400v3.pdf
+  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-nin.md
+  - https://arxiv.org/abs/1312.4400
 # license of the model
 license: MIT
 # inputs to the model

@@ -2,7 +2,7 @@ name: ResidualNet18 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.1 # framework version contraint
-version: 1.0 # version information in semantic version format
+version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
@@ -14,9 +14,11 @@ container: # containers used to perform model prediction
 description: >
   An image-classification network built of layers that learn residual functions w.r.t layer inputs.
   This network consists of 18 layers.
-  An ensemble of these networks achieves 3.57% error rate on ILSVRC-2015.
+  It is able to achieve 30.48% Top-1 Error and 10.92% Top-5 Error on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1512.03385v1.pdf
+  - https://github.com/tornadomeet/ResNet
+  - https://github.com/KaimingHe/deep-residual-networks
+  - https://arxiv.org/abs/1512.03385
 # license of the model
 license: MIT
 # inputs to the model

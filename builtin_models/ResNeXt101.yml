@@ -14,9 +14,10 @@ container: # containers used to perform model prediction
 description: >
   ResNeXt is a simple, highly modularized network architecture for image classification.
   This network consists of 101 layers.
-  ResNeXt101 achieves 21.2% and 5.6% top-1 and top-5 error on ImageNet1K.
+  It is able to achieve 78.28% Top-1 Accuracy and 94.08% Top-5 accuracy on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1611.05431.pdf
+  - https://arxiv.org/abs/1611.05431
+  - https://github.com/apache/incubator-mxnet/tree/master/example/image-classification
 # license of the model
 license: MIT
 # inputs to the model

@@ -1,8 +1,8 @@
-name: Inception # name of your model
+name: ResidualNet50 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.1 # framework version contraint
-version: 3.0 # version information in semantic version format
+version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
@@ -12,11 +12,13 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  An image-classification convolutional network.
-  Inception achieves 21.2% top-1 and 5.6% top-5 error on the ILSVRC 2012 validation dataset.
-  It consists of fewer than 25M parameters.
+  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
+  This network consists of 50 layers.
+  It is able to achieve 24.39% Top-1 Error and 7.24% Top-5 Error on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1512.00567.pdf
+  - https://github.com/tornadomeet/ResNet
+  - https://github.com/KaimingHe/deep-residual-networks
+  - https://arxiv.org/abs/1512.03385
 # license of the model
 license: MIT
 # inputs to the model
@@ -34,11 +36,11 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_url: http://data.dmlc.ml/mxnet/models/imagenet/resnet/synset.txt
 model: # specifies model graph and weights resources
-  base_url: http://data.dmlc.ml/models/imagenet/inception-bn/
-  graph_path: Inception-BN-symbol.json
-  weights_path: Inception-BN-0126.params
+  base_url: http://data.dmlc.ml/models/imagenet/resnet/50-layers/
+  graph_path: resnet-50-symbol.json
+  weights_path: resnet-50-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive

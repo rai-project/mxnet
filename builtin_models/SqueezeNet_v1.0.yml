@@ -1,4 +1,4 @@
-name: ResidualNet101 # name of your model
+name: SqueezeNet # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.1 # framework version contraint
@@ -12,11 +12,12 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
-  This network consists of 101 layers.
-  An ensemble of these networks achieves 3.57% error rate on ILSVRC-2015.
+  This model is a pretrained model on ILSVRC2012 dataset.
+  It is able to achieve 55.4% Top-1 Accuracy and 78.8% Top-5 accuracy on ILSVRC2012-Validation Set.
+  This model is famous for its small size(only 4.8M).
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1512.03385v1.pdf
+  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-squeezenet.md
+  - https://arxiv.org/abs/1602.07360
 # license of the model
 license: MIT
 # inputs to the model
@@ -34,11 +35,11 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://data.dmlc.ml/mxnet/models/imagenet/resnet/synset.txt
+    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
 model: # specifies model graph and weights resources
-  base_url: http://data.dmlc.ml/models/imagenet/resnet/101-layers/
-  graph_path: resnet-101-symbol.json
-  weights_path: resnet-101-0000.params
+  base_url: http://data.dmlc.ml/models/imagenet/squeezenet/
+  graph_path: squeezenet_v1.0-symbol.json
+  weights_path: squeezenet_v1.0-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive

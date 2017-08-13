@@ -12,11 +12,11 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  A photo-localization convolutional neural network based on the Inception architecture.
-  LocationNet is able to localize 3.6% of images at street level, and 48% at continent level.
-  The network was trained on 19M EXIF geotagged photos and consists of 97,321,048 parameters.
+  Geolocation model inspired by ideas presented in: PlaNet - Photo Geolocation with Convolutional Neural Networks (ECCV 2016), Tobias Weyand, Ilya Kostrikov, James Philbin https://research.google.com/pubs/pub45488.html
 references: # references to papers / websites / etc.. describing the model
-  - https://static.googleusercontent.com/media/research.google.com/en//pubs/archive/45488.pdf
+  - https://github.com/multimedia-berkeley/tutorials
+  - https://arxiv.org/abs/1602.05314
+  - https://research.google.com/pubs/pub45488.html
 # license of the model
 license: MIT
 # inputs to the model

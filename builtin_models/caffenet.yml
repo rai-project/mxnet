@@ -12,10 +12,11 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  An image-classification deep convolutional network trained on the LSVRC-2010 ImageNet training set,
-  which achieved top-1 and top-5 error rates of 39.7% and 18.9%.
-  The network consists of 60M parameters and 500K neurons across 5 convolutional layers two fully-connected layers.
+  This model is a pretrained model on ILSVRC2012[1] dataset.
+  It is able to achieve 54.5% Top-1 Accuracy and 78.3% Top-5 accuracy on ILSVRC2012-Validation Set.
+  This model is converted from caffenet provided in Caffe Model Zoo.
 references: # references to papers / websites / etc.. describing the model
+  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-caffenet.md
   - http://papers.nips.cc/paper/4824-imagenet-classification-with-deep-convolutional-neural-networks
 # license of the model
 license: MIT

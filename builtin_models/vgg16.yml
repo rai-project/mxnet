@@ -12,11 +12,12 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  An image-classification convolutional network.
-  VGG uses a network with 16 layers of 3x3 convolution filters.
-  VGG achieves 25.5% top-1 error and 8.0% top-5 error on the ImageNet challenge dataset in 2015.
+  This model is a pretrained model on ILSVRC2012 dataset.
+  This model is able to achieve 71.0% Top-1 Accuracy and 89.8% Top-5 accuracy on ILSVRC2012-Validation Set.
+  The model is converted from caffemodel and they are widely used in transfer learning like object detection and image semantic segmentation.
 references: # references to papers / websites / etc.. describing the model
-  - https://arxiv.org/pdf/1409.1556v6.pdf
+  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-vgg.md
+  - https://arxiv.org/abs/1409.1556
 # license of the model
 license: MIT
 # inputs to the model
