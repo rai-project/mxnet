@@ -1,4 +1,4 @@
-name: Network in Network (NiN) # name of your model
+name: Network in Network # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.1 # framework version contraint

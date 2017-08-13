@@ -1,4 +1,4 @@
-name: ResidualNet200 # name of your model
+name: ResNet200 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.1 # framework version contraint
