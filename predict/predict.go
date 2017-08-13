@@ -13,10 +13,13 @@ import (
 	"github.com/anthonynsimon/bild/parallel"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"github.com/rai-project/config"
 	"github.com/rai-project/dlframework"
+	agent "github.com/rai-project/dlframework/framework/agent"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
 	raiimage "github.com/rai-project/image"
+	"github.com/rai-project/mxnet"
 	gomxnet "github.com/songtianyi/go-mxnet-predictor/mxnet"
 )
 
@@ -36,10 +39,11 @@ func New(model dlframework.ModelManifest) (common.Predictor, error) {
 	if strings.ToLower(firstInputType) != "image" {
 		return nil, errors.New("input type not supported")
 	}
-	return newImagePredictor(model)
+	predictor := new(ImagePredictor)
+	return predictor.Load(context.Background(), model)
 }
 
-func newImagePredictor(model dlframework.ModelManifest) (*ImagePredictor, error) {
+func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest) (common.Predictor, error) {
 	framework, err := model.ResolveFramework()
 	if err != nil {
 		return nil, err
@@ -284,4 +288,17 @@ func (p *ImagePredictor) Close() error {
 		p.predictor.Free()
 	}
 	return nil
+}
+
+func init() {
+	config.AfterInit(func() {
+		framework := mxnet.FrameworkManifest
+		agent.AddPredictor(framework, &ImagePredictor{
+			ImagePredictor: common.ImagePredictor{
+				Base: common.Base{
+					Framework: framework,
+				},
+			},
+		})
+	})
 }
