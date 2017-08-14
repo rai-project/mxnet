@@ -8,6 +8,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/k0kubun/pp"
+
 	context "golang.org/x/net/context"
 
 	"github.com/anthonynsimon/bild/parallel"
@@ -150,15 +152,16 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 	}
 
 	res := make([]float32, 3*height*width)
+	pp.Println(mean)
 	parallel.Line(height, func(start, end int) {
 		w := width
 		h := height
 		for y := start; y < end; y++ {
 			for x := 0; x < width; x++ {
 				r, g, b, _ := img.At(x+b.Min.X, y+b.Min.Y).RGBA()
-				res[y*w+x] = float32(r>>8) - mean[2]
+				res[y*w+x] = float32(r>>8) - mean[0]
 				res[w*h+y*w+x] = float32(g>>8) - mean[1]
-				res[2*w*h+y*w+x] = float32(b>>8) - mean[0]
+				res[2*w*h+y*w+x] = float32(b>>8) - mean[2]
 			}
 		}
 	})
