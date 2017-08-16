@@ -5,7 +5,6 @@ import (
 	"image"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	context "golang.org/x/net/context"
@@ -25,7 +24,6 @@ import (
 
 type ImagePredictor struct {
 	common.ImagePredictor
-	workDir   string
 	features  []string
 	predictor *gomxnet.Predictor
 }
@@ -60,67 +58,14 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 				Framework: framework,
 				Model:     model,
 			},
+			WorkDir: workDir,
 		},
-		workDir: workDir,
 	}
 
 	return ip, nil
 }
 
-func (p *ImagePredictor) GetWeightsUrl() string {
-	model := p.Model
-	if model.GetModel().GetIsArchive() {
-		return model.GetModel().GetBaseUrl()
-	}
-	baseURL := ""
-	if model.GetModel().GetBaseUrl() != "" {
-		baseURL = strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/"
-	}
-	return baseURL + model.GetModel().GetWeightsPath()
-}
-
-func (p *ImagePredictor) GetGraphUrl() string {
-	model := p.Model
-	if model.GetModel().GetIsArchive() {
-		return model.GetModel().GetBaseUrl()
-	}
-	return strings.TrimSuffix(model.GetModel().GetBaseUrl(), "/") + "/" + model.GetModel().GetGraphPath()
-}
-
-func (p *ImagePredictor) GetFeaturesUrl() string {
-	model := p.Model
-	params := model.GetOutput().GetParameters()
-	pfeats, ok := params["features_url"]
-	if !ok {
-		return ""
-	}
-	return pfeats.Value
-}
-
-func (p *ImagePredictor) GetGraphPath() string {
-	model := p.Model
-	graphPath := model.GetModel().GetGraphPath()
-	return filepath.Join(p.workDir, graphPath)
-}
-
-func (p *ImagePredictor) GetWeightsPath() string {
-	model := p.Model
-	graphPath := model.GetModel().GetWeightsPath()
-	return filepath.Join(p.workDir, graphPath)
-}
-
-func (p *ImagePredictor) GetFeaturesPath() string {
-	model := p.Model
-	return filepath.Join(p.workDir, model.GetName()+".features")
-}
-
-func (p *ImagePredictor) GetMeanPath() string {
-	model := p.Model
-	return filepath.Join(p.workDir, model.GetName()+".mean")
-}
-
 func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (interface{}, error) {
-
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Preprocess"); span != nil {
 		ctx = newCtx
 		defer span.Finish()
@@ -162,6 +107,7 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 			}
 		}
 	})
+
 	return res, nil
 }
 
@@ -181,6 +127,7 @@ func (p *ImagePredictor) Download(ctx context.Context) error {
 	if _, err := downloadmanager.DownloadFile(ctx, p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -257,10 +204,6 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		return nil, err
 	}
 
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "ForwardInference"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
 	if err := p.predictor.Forward(); err != nil {
 		return nil, err
 	}
@@ -278,8 +221,8 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 			Probability: prob,
 		}
 	}
-
 	res := dlframework.PredictionFeatures(rprobs)
+
 	return &res, nil
 }
 
@@ -287,6 +230,7 @@ func (p *ImagePredictor) Close() error {
 	if p.predictor != nil {
 		p.predictor.Free()
 	}
+
 	return nil
 }
 
