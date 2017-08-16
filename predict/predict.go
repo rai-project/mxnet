@@ -117,35 +117,38 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 }
 
 func (p *ImagePredictor) Download(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadGraph"); span != nil {
+	span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadGraph")
+	if span != nil {
 		span.SetTag("url", p.GetGraphUrl())
 		span.SetTag("traget_file", p.GetGraphPath())
 		ctx = newCtx
-		defer span.Finish()
 	}
 	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
 		return err
 	}
+	span.Finish()
 
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadWeights"); span != nil {
+	span, newCtx = opentracing.StartSpanFromContext(ctx, "DownloadWeights")
+	if span != nil {
 		span.SetTag("url", p.GetWeightsUrl())
 		span.SetTag("traget_file", p.GetWeightsPath())
 		ctx = newCtx
-		defer span.Finish()
 	}
 	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
 		return err
 	}
+	span.Finish()
 
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadFeatures"); span != nil {
+	span, newCtx = opentracing.StartSpanFromContext(ctx, "DownloadFeatures")
+	if span != nil {
 		span.SetTag("url", p.GetFeaturesUrl())
 		span.SetTag("traget_file", p.GetFeaturesPath())
 		ctx = newCtx
-		defer span.Finish()
 	}
 	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
 		return err
 	}
+	span.Finish()
 
 	return nil
 }
