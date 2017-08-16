@@ -94,6 +94,11 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 		return nil, errors.Wrap(err, "failed to get mean image")
 	}
 
+	scale, err := p.GetScale()
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get scale")
+	}
+
 	res := make([]float32, 3*height*width)
 	parallel.Line(height, func(start, end int) {
 		w := width
@@ -101,9 +106,9 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 		for y := start; y < end; y++ {
 			for x := 0; x < width; x++ {
 				r, g, b, _ := img.At(x+b.Min.X, y+b.Min.Y).RGBA()
-				res[y*w+x] = float32(r>>8) - mean[0]
-				res[w*h+y*w+x] = float32(g>>8) - mean[1]
-				res[2*w*h+y*w+x] = float32(b>>8) - mean[2]
+				res[y*w+x] = (float32(r>>8) - mean[0]) / scale
+				res[w*h+y*w+x] = (float32(g>>8) - mean[1]) / scale
+				res[2*w*h+y*w+x] = (float32(b>>8) - mean[2]) / scale
 			}
 		}
 	})
@@ -112,19 +117,33 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 }
 
 func (p *ImagePredictor) Download(ctx context.Context) error {
-
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadingModel"); span != nil {
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadGraph"); span != nil {
+		span.SetTag("url", p.GetGraphUrl())
+		span.SetTag("traget_file", p.GetGraphPath())
 		ctx = newCtx
 		defer span.Finish()
 	}
+	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
+		return err
+	}
 
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetGraphUrl(), p.GetGraphPath()); err != nil {
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadWeights"); span != nil {
+		span.SetTag("url", p.GetWeightsUrl())
+		span.SetTag("traget_file", p.GetWeightsPath())
+		ctx = newCtx
+		defer span.Finish()
+	}
+	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
 		return err
 	}
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
-		return err
+
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadFeatures"); span != nil {
+		span.SetTag("url", p.GetFeaturesUrl())
+		span.SetTag("traget_file", p.GetFeaturesPath())
+		ctx = newCtx
+		defer span.Finish()
 	}
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
+	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
 		return err
 	}
 
@@ -132,13 +151,13 @@ func (p *ImagePredictor) Download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	if p.predictor != nil {
-		return nil
-	}
-
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "LoadPredictor"); span != nil {
 		ctx = newCtx
 		defer span.Finish()
+	}
+
+	if p.predictor != nil {
+		return nil
 	}
 
 	symbol, err := ioutil.ReadFile(p.GetGraphPath())
@@ -191,6 +210,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 		ctx = newCtx
 		defer span.Finish()
 	}
+
 	if err := p.loadPredictor(ctx); err != nil {
 		return nil, err
 	}
@@ -202,6 +222,11 @@ func (p *ImagePredictor) Predict(ctx context.Context, input interface{}) (*dlfra
 
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
+	}
+
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Run"); span != nil {
+		ctx = newCtx
+		defer span.Finish()
 	}
 
 	if err := p.predictor.Forward(); err != nil {
