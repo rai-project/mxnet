@@ -117,6 +117,16 @@ func (p *ImagePredictor) Preprocess(ctx context.Context, input interface{}) (int
 }
 
 func (p *ImagePredictor) Download(ctx context.Context) error {
+	model := p.Model
+	if model.Model.IsArchive {
+		baseURL := model.Model.BaseUrl
+		_, err := downloadmanager.DownloadInto(baseURL, p.WorkDir)
+		if err != nil {
+			return errors.Wrapf(err, "failed to download model archive from %v", model.Model.BaseUrl)
+		}
+		return nil
+	}
+
 	span, newCtx := opentracing.StartSpanFromContext(ctx, "DownloadGraph")
 	if span != nil {
 		span.SetTag("url", p.GetGraphUrl())
