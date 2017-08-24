@@ -17,9 +17,9 @@ import (
 	agent "github.com/rai-project/dlframework/framework/agent"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
+	gomxnet "github.com/rai-project/go-mxnet-predictor/mxnet"
 	raiimage "github.com/rai-project/image"
 	"github.com/rai-project/mxnet"
-	gomxnet "github.com/songtianyi/go-mxnet-predictor/mxnet"
 )
 
 type ImagePredictor struct {

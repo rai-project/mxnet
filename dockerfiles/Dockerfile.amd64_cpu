@@ -1,18 +1,31 @@
-FROM mxnet/python:latest as mxnet
+FROM carml/go-mxnet:amd64-cpu-latest
 MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
 
-FROM carml/go:amd64-cpu as go
 
-RUN apt-get update && apt-get install -y \
-    libopenblas-dev libopencv-dev && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+ # Build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VCS_URL
+ARG VERSION
+LABEL org.mxnet.agent.build-date=$BUILD_DATE \
+      org.mxnet.agent.name="mxnet agent" \
+      org.mxnet.agent.description="" \
+      org.mxnet.agent.url="https://www.carml.org/" \
+      org.mxnet.agent.vcs-ref=$VCS_REF \
+      org.mxnet.agent.vcs-url=$VCS_URL \
+      org.mxnet.agent.vendor="CarML" \
+      org.mxnet.agent.version=$VERSION \
+      org.mxnet.agent.schema-version="1.0"
 
-COPY --from=mxnet /mxnet /mxnet
 
-RUN go get -u -v github.com/songtianyi/go-mxnet-predictor && \
-    sed -i "/prefix=/c prefix=\/mxnet" $GOPATH/src/github.com/songtianyi/go-mxnet-predictor/travis/mxnet.pc && \
-    cp $GOPATH/src/github.com/songtianyi/go-mxnet-predictor/travis/mxnet.pc /usr/lib/pkgconfig && \
-    pkg-config --libs mxnet && \
-    cd $GOPATH/src/github.com/songtianyi/go-mxnet-predictor && go get -v .../.
-ENV LD_LIBRARY_PATH /mxnet/lib:$LD_LIBRARY_PATH
+# Get Go bindings
+ENV PKG github.com/rai-project/mxnet
+WORKDIR $GOPATH/src/$PKG
+
+RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
+    glide install && \
+    rm -fr vendor/github.com/Sirupsen && \
+    find vendor -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} + && \
+    go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
+    go install && \
+    rm -fr vendor

@@ -1,12 +1,35 @@
-FROM carml/mxnet:base-ppc64le-gpu as builder
+FROM carml/go-mxnet:amd64-cpu-latest
 MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
 
-RUN go get -u -v github.com/rai-project/mxnet/mxnet-agent && \
-    cd $GOPATH/src/github.com/rai-project/mxnet/mxnet-agent && \
+
+ # Build-time metadata as defined at http://label-schema.org
+ARG BUILD_DATE
+ARG VCS_REF
+ARG VCS_URL
+ARG VERSION
+LABEL org.mxnet.agent.build-date=$BUILD_DATE \
+      org.mxnet.agent.name="mxnet agent" \
+      org.mxnet.agent.description="" \
+      org.mxnet.agent.url="https://www.carml.org/" \
+      org.mxnet.agent.vcs-ref=$VCS_REF \
+      org.mxnet.agent.vcs-url=$VCS_URL \
+      org.mxnet.agent.vendor="CarML" \
+      org.mxnet.agent.version=$VERSION \
+      org.mxnet.agent.schema-version="1.0"
+
+
+# Get Go bindings
+ENV PKG github.com/rai-project/mxnet
+WORKDIR $GOPATH/src/$PKG
+
+RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
     glide install && \
-    go install
+    rm -fr vendor/github.com/Sirupsen && \
+    find vendor -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} + && \
+    go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
+    cd mxnet-agent && \
+    go install && \
+    cd .. && \
+    rm -fr vendor
 
-FROM ubuntu:latest
-
-COPY --from=builder /go/bin/mxnet-agent /usr/bin
 ENTRYPOINT ["mxnet-agent", "--debug", "--verbose"]

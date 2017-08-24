@@ -1,4 +1,4 @@
-FROM carml/go-mxnet:amd64-gpu-latest
+FROM carml/go-mxnet:ppc64le-gpu-latest
 MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
 
 
@@ -27,5 +27,9 @@ RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
     rm -fr vendor/github.com/Sirupsen && \
     find vendor -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} + && \
     go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
+    cd mxnet-agent && \
     go install && \
+    cd .. && \
     rm -fr vendor
+
+ENTRYPOINT ["mxnet-agent", "--debug", "--verbose"]

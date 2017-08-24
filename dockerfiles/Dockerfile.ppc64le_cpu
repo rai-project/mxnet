@@ -1,4 +1,4 @@
-FROM carml/go-mxnet:amd64-gpu-latest
+FROM carml/go-mxnet:ppc64le-cpu-latest
 MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
 
 
