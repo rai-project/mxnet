@@ -10,8 +10,6 @@ import (
 )
 
 func main() {
-	cmd.Init()
-
 	rootCmd, err := cmd.NewRootCommand(mxnet.FrameworkManifest)
 	if err != nil {
 		fmt.Println(err)
