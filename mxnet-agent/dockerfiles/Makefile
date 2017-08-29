@@ -19,7 +19,7 @@ ARCH ?= $(shell go env GOARCH)
 GIT_COMMIT = $(strip $(shell git rev-parse --short HEAD))
 
 # Get the version number from the code
-CODE_VERSION = v$(strip $(shell cat ../VERSION))
+CODE_VERSION = v$(strip $(shell cat ../../VERSION))
 
 
 # Find out if the working directory is clean
