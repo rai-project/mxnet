@@ -1,7 +1,7 @@
 package: github.com/rai-project/mxnet
 import:
 - package: github.com/Unknwon/com
-  version: ~1.0.0
+  version: ^1.0.0
 - package: github.com/anthonynsimon/bild
   version: ~0.10.0
   subpackages:
