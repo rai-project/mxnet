@@ -191,7 +191,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		line := scanner.Text()
 		features = append(features, line)
 	}
-
 	p.features = features
 
 	inputDims, err := p.GetImageDimensions()
@@ -207,7 +206,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-
 	p.predictor = pred
 
 	return nil
