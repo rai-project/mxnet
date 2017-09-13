@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/rai-project/dlframework/framework/cmd"
+	cmd "github.com/rai-project/dlframework/framework/cmd/server"
 	"github.com/rai-project/mxnet"
 	_ "github.com/rai-project/mxnet/predict"
 )
