@@ -1,55 +1,45 @@
 package: github.com/rai-project/mxnet
 import:
-- package: github.com/Unknwon/com
-  version: ^1.0.0
-- package: github.com/anthonynsimon/bild
-  version: ~0.10.0
-  subpackages:
-  - parallel
-  - transform
 - package: github.com/awalterschulze/gographviz
-  version: ~2.0.0
+  version: ^2.0.0
 - package: github.com/elazarl/go-bindata-assetfs
-- package: github.com/facebookgo/freeport
-- package: github.com/fatih/color
 - package: github.com/gogo/protobuf
-  version: ~0.4.0
+  version: ^0.4.0
   subpackages:
   - gogoproto
   - proto
   - sortkeys
+- package: github.com/opentracing/opentracing-go
+  version: ^1.0.2
 - package: github.com/pkg/errors
-  version: ~0.8.0
+  version: ^0.8.0
 - package: github.com/rai-project/config
 - package: github.com/rai-project/dlframework
   subpackages:
   - framework
   - framework/agent
+  - framework/cmd/server
   - framework/predict
 - package: github.com/rai-project/downloadmanager
-- package: github.com/rai-project/grpc
-- package: github.com/rai-project/logger
-- package: github.com/rai-project/registry
-- package: github.com/rai-project/utils
-- package: github.com/rai-project/uuid
-- package: github.com/sirupsen/logrus
-  version: ^1.0.0
-- package: github.com/songtianyi/go-mxnet-predictor
+- package: github.com/rai-project/go-mxnet-predictor
   subpackages:
   - mxnet
-- package: github.com/spf13/cobra
-- package: github.com/spf13/viper
+- package: github.com/rai-project/image
+  subpackages:
+  - types
+- package: github.com/rai-project/logger
+- package: github.com/sirupsen/logrus
+  version: ^1.0.0
 - package: golang.org/x/net
   subpackages:
   - context
-- package: google.golang.org/grpc
-  version: ~1.5.1
 - package: gopkg.in/fatih/set.v0
-  version: ~0.1.0
+  version: ^0.1.0
 - package: github.com/GeertJohan/go.rice
 - package: github.com/k0kubun/pp
-  version: ~2.3.0
+  version: ^2.3.0
 - package: github.com/stretchr/testify
+  version: ^1.1.4
   subpackages:
   - assert
 - package: gopkg.in/yaml.v2
