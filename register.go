@@ -10,7 +10,7 @@ import (
 
 var FrameworkManifest = dlframework.FrameworkManifest{
 	Name:    "MXNet",
-	Version: "0.1",
+	Version: "0.11.0",
 	Container: map[string]*dlframework.ContainerHardware{
 		"amd64": {
 			Cpu: "raiproject/carml-mxnet:amd64-cpu",
