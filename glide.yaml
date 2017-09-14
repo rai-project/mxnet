@@ -11,7 +11,7 @@ import:
 - package: github.com/opentracing/opentracing-go
   version: ^1.0.2
 - package: github.com/pkg/errors
-  version: ^0.8.0
+  version: ~0.8.0
 - package: github.com/rai-project/config
 - package: github.com/rai-project/dlframework
   subpackages:
