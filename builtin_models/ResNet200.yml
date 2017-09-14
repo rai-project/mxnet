@@ -1,7 +1,7 @@
 name: ResNet200 # name of your model
 framework:
   name: MXNet # framework for the model
-  version: 0.1 # framework version contraint
+  version: 0.11.0 # framework version contraint
 version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
