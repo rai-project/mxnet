@@ -33,6 +33,7 @@ output:
   parameters:
     # type parameters
     features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/models/imagenet/squeezenet/
   graph_path: squeezenet_v1.1-symbol.json
@@ -40,6 +41,8 @@ model: # specifies model graph and weights resources
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
+  graph_checksum: bab4d80f45e9285cf9f4a3f01f07022e
+  weights_checksum: 05b1eb6acabdaaee37c9c9ff666c1b51
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training

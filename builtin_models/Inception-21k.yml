@@ -39,6 +39,7 @@ output:
   parameters:
     # type parameters
     features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/mxnet/models/imagenet/inception-21k.tar.gz
   graph_path: Inception-symbol.json

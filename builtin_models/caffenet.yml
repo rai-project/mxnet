@@ -36,6 +36,7 @@ output:
   parameters:
     # type parameters
     features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/mxnet/models/imagenet/caffenet/
   graph_path: caffenet-symbol.json
@@ -43,6 +44,8 @@ model: # specifies model graph and weights resources
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
+  graph_checksum: 4b770691d2c8df83ed7cdfe5d2836912
+  weights_checksum: 52c5f70702ae8c4629052c4ad9c7f3d7
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training

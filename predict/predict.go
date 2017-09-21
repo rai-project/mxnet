@@ -6,8 +6,7 @@ import (
 	"os"
 	"strings"
 
-	context "golang.org/x/net/context"
-
+	"github.com/k0kubun/pp"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
@@ -18,6 +17,7 @@ import (
 	gomxnet "github.com/rai-project/go-mxnet-predictor/mxnet"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
+	context "golang.org/x/net/context"
 )
 
 type ImagePredictor struct {
@@ -68,8 +68,13 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 		},
 	}
 
-	ip.download(ctx)
-	ip.loadPredictor(ctx)
+	if ip.download(ctx) != nil {
+		return nil, err
+	}
+
+	if ip.loadPredictor(ctx) != nil {
+		return nil, err
+	}
 
 	return ip, nil
 }
@@ -113,22 +118,48 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 	model := p.Model
 	if model.Model.IsArchive {
 		baseURL := model.Model.BaseUrl
-		_, err := downloadmanager.DownloadInto(ctx, baseURL, p.WorkDir)
+		_, err := downloadmanager.DownloadInto(baseURL, p.WorkDir, downloadmanager.Context(ctx))
 		if err != nil {
 			return errors.Wrapf(err, "failed to download model archive from %v", model.Model.BaseUrl)
 		}
 		return nil
 	}
 
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetGraphUrl(), p.GetGraphPath()); err != nil {
+	checksum := p.GetGraphChecksum()
+	if checksum == "" {
+		return errors.New("Need graph file checksum in the model manifest")
+	}
+
+	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath(), downloadmanager.MD5Sum(checksum)); err != nil {
+		if err != nil {
+			pp.Println("graph\n\n")
+			pp.Println(err)
+
+		}
 		return err
 	}
 
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
+	checksum = p.GetWeightsChecksum()
+	if checksum == "" {
+		return errors.New("Need weights file checksum in the model manifest")
+	}
+
+	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath(), downloadmanager.MD5Sum(checksum)); err != nil {
+		if err != nil {
+			pp.Println("weights\n\n")
+		}
 		return err
 	}
 
-	if _, err := downloadmanager.DownloadFile(ctx, p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
+	checksum = p.GetFeaturesChecksum()
+	if checksum == "" {
+		return errors.New("Need features file checksum in the model manifest")
+	}
+
+	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath(), downloadmanager.MD5Sum(checksum)); err != nil {
+		if err != nil {
+			pp.Println("features\n\n")
+		}
 		return err
 	}
 
@@ -184,6 +215,10 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 
 func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframework.Features, error) {
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict"); span != nil {
+		span.SetTag("model", p.Model.GetName())
+		span.SetTag("model_version", p.Model.GetVersion())
+		span.SetTag("framework", p.Model.GetFramework().GetName())
+		span.SetTag("framework_version", p.Model.GetFramework().GetVersion())
 		ctx = newCtx
 		defer span.Finish()
 	}

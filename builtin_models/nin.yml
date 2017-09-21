@@ -35,6 +35,7 @@ output:
   parameters:
     # type parameters
     features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/models/imagenet/nin/
   graph_path: nin-symbol.json
@@ -42,6 +43,8 @@ model: # specifies model graph and weights resources
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
+  graph_checksum: 46dcd37dafa691be464035d6a43d9fed
+  weights_checksum: 6fd0c62875f9b2dd9745af60a38866d7
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training
