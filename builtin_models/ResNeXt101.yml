@@ -36,7 +36,7 @@ output:
   parameters:
     # type parameters
     features_url: http://data.dmlc.ml/mxnet/models/imagenet/resnext/synset.txt
-    features_checksum: 4d234b5833aca44928065a180db3016a
+    features_checksum: b05d16d1c75b8f96f652b1ab23275561
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/mxnet/models/imagenet/resnext/101-layers/
   graph_path: resnext-101-symbol.json
@@ -44,8 +44,8 @@ model: # specifies model graph and weights resources
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
-  graph_checksum: 752eea37001abd96429a458d5fe40584
-  weights_checksum: 2224d5eca1c9c022029c87770a79c70e
+  graph_checksum: 2dfc9be4851edd5fdeb0e57d3d5d1915
+  weights_checksum: c4ccef9bc937298a91a3a032f992c5da
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training

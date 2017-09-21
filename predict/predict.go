@@ -6,7 +6,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/k0kubun/pp"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
@@ -131,11 +130,6 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 	}
 
 	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-		if err != nil {
-			pp.Println("graph\n\n")
-			pp.Println(err)
-
-		}
 		return err
 	}
 
@@ -145,9 +139,6 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 	}
 
 	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-		if err != nil {
-			pp.Println("weights\n\n")
-		}
 		return err
 	}
 
@@ -157,9 +148,6 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 	}
 
 	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-		if err != nil {
-			pp.Println("features\n\n")
-		}
 		return err
 	}
 
