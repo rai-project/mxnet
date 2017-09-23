@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
+	"github.com/k0kubun/pp"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
@@ -202,21 +204,25 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframework.Features, error) {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict"); span != nil {
-		span.SetTag("model", p.Model.GetName())
-		span.SetTag("model_version", p.Model.GetVersion())
-		span.SetTag("framework", p.Model.GetFramework().GetName())
-		span.SetTag("framework_version", p.Model.GetFramework().GetVersion())
+	tags := opentracing.Tags{
+		"model":             p.Model.GetName(),
+		"model_version":     p.Model.GetVersion(),
+		"framework":         p.Model.GetFramework().GetName(),
+		"framework_version": p.Model.GetFramework().GetVersion(),
+	}
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", tags); span != nil {
 		ctx = newCtx
 		defer span.Finish()
 	}
-
-	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators); err != nil {
+	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 		profile.Start()
 		defer func() {
 			profile.Stop()
-			profile.Publish(ctx)
-			profile.Delete()
+			_, _, err = profile.Publish(ctx, "layers", tags)
+			if err != nil {
+				pp.Println("publish error :: ", err.Error())
+			}
+			// profile.Delete()
 		}()
 	}
 
