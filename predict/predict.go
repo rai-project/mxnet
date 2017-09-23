@@ -203,20 +203,19 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframework.Features, error) {
-	tags := opentracing.Tags{
+	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model":             p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
 		"framework":         p.Model.GetFramework().GetName(),
 		"framework_version": p.Model.GetFramework().GetVersion(),
-	}
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", tags); span != nil {
+	}); span != nil {
 		ctx = newCtx
 
 		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
 			defer func() {
 				profile.Stop()
-				profile.Publish(ctx, "layers", tags)
+				profile.Publish(ctx, "layers")
 				profile.Delete()
 			}()
 		}
