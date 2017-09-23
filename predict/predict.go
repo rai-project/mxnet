@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/k0kubun/pp"
 	opentracing "github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
@@ -212,18 +211,16 @@ func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframewo
 	}
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", tags); span != nil {
 		ctx = newCtx
+
+		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
+			profile.Start()
+			defer func() {
+				profile.Stop()
+				profile.Publish(ctx, "layers", tags)
+				profile.Delete()
+			}()
+		}
 		defer span.Finish()
-	}
-	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
-		profile.Start()
-		defer func() {
-			profile.Stop()
-			_, _, err = profile.Publish(ctx, "layers", tags)
-			if err != nil {
-				pp.Println("publish error :: ", err.Error())
-			}
-			// profile.Delete()
-		}()
 	}
 
 	if err := p.predictor.SetInput("data", data); err != nil {
