@@ -211,6 +211,15 @@ func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframewo
 		defer span.Finish()
 	}
 
+	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators); err != nil {
+		profile.Start()
+		defer func() {
+			profile.Stop()
+			profile.Publish(ctx)
+			profile.Delete()
+		}()
+	}
+
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
 	}
