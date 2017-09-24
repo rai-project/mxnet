@@ -26,7 +26,7 @@ type ImagePredictor struct {
 	predictor *gomxnet.Predictor
 }
 
-func New(model dlframework.ModelManifest) (common.Predictor, error) {
+func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
 	modelInputs := model.GetInputs()
 	if len(modelInputs) != 1 {
 		return nil, errors.New("number of inputs not supported")
@@ -39,10 +39,10 @@ func New(model dlframework.ModelManifest) (common.Predictor, error) {
 
 	predictor := new(ImagePredictor)
 
-	return predictor.Load(context.Background(), model)
+	return predictor.Load(context.Background(), model, opts)
 }
 
-func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest) (common.Predictor, error) {
+func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Load"); span != nil {
 		ctx = newCtx
 		defer span.Finish()
@@ -61,8 +61,9 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 	ip := &ImagePredictor{
 		ImagePredictor: common.ImagePredictor{
 			Base: common.Base{
-				Framework: framework,
-				Model:     model,
+				Framework:         framework,
+				Model:             model,
+				PredictionOptions: opts,
 			},
 			WorkDir: workDir,
 		},
@@ -79,7 +80,7 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 	return ip, nil
 }
 
-func (p *ImagePredictor) PreprocessOptions(ctx context.Context) (common.PreprocessOptions, error) {
+func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.PreprocessOptions, error) {
 	mean, err := p.GetMeanImage()
 	if err != nil {
 		return common.PreprocessOptions{}, err
@@ -104,13 +105,18 @@ func (p *ImagePredictor) PreprocessOptions(ctx context.Context) (common.Preproce
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Download"); span != nil {
-		span.SetTag("graph_url", p.GetGraphUrl())
-		span.SetTag("traget_graph_file", p.GetGraphPath())
-		span.SetTag("weights_url", p.GetWeightsUrl())
-		span.SetTag("traget_weights_file", p.GetWeightsPath())
-		span.SetTag("feature_url", p.GetFeaturesUrl())
-		span.SetTag("traget_feature_file", p.GetFeaturesPath())
+	if span, newCtx := opentracing.StartSpanFromContext(
+		ctx,
+		"Download",
+		opentracing.Tags{
+			"graph_url":           p.GetGraphUrl(),
+			"traget_graph_file":   p.GetGraphPath(),
+			"weights_url":         p.GetWeightsUrl(),
+			"traget_weights_file": p.GetWeightsPath(),
+			"feature_url":         p.GetFeaturesUrl(),
+			"traget_feature_file": p.GetFeaturesPath(),
+		},
+	); span != nil {
 		ctx = newCtx
 		defer span.Finish()
 	}
@@ -189,10 +195,11 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		return err
 	}
 
-	pred, err := gomxnet.CreatePredictor(symbol,
-		params,
-		gomxnet.Device{gomxnet.CPU_DEVICE, 0},
-		[]gomxnet.InputNode{{Key: "data", Shape: inputDims}},
+	pred, err := gomxnet.CreatePredictor(
+		gomxnet.Symbol(symbol),
+		gomxnet.Weights(params),
+		gomxnet.InputNode("data", inputDims),
+		gomxnet.BatchSize(p.BatchSize()),
 	)
 	if err != nil {
 		return err
@@ -202,11 +209,11 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	return nil
 }
 
-func (p *ImagePredictor) Predict(ctx context.Context, data []float32) (dlframework.Features, error) {
+func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlframework.PredictionOptions) (dlframework.Features, error) {
 	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
-		"model":             p.Model.GetName(),
+		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
-		"framework":         p.Model.GetFramework().GetName(),
+		"framework_name":    p.Model.GetFramework().GetName(),
 		"framework_version": p.Model.GetFramework().GetVersion(),
 	}); span != nil {
 		ctx = newCtx

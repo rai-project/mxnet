@@ -4,7 +4,7 @@ version: 1.0
 type: cnn
 input:
   type: image
-  dimensions: [1, 3, 224, 224]
+  dimensions: [3, 224, 224]
 output:
   type: label
 dataset_name: ImageNet
