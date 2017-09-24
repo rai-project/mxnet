@@ -99,7 +99,7 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 	return common.PreprocessOptions{
 		MeanImage: mean,
 		Scale:     scale,
-		Size:      []int{int(imageDims[2]), int(imageDims[3])},
+		Size:      []int{int(imageDims[1]), int(imageDims[2])},
 		ColorMode: types.RGBMode,
 	}, nil
 }
