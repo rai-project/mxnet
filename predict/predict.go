@@ -8,6 +8,7 @@ import (
 	"strings"
 
 	opentracing "github.com/opentracing/opentracing-go"
+	olog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
 	"github.com/rai-project/config"
 	"github.com/rai-project/dlframework"
@@ -43,7 +44,7 @@ func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (c
 }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Load"); span != nil {
+	if span, newCtx := tracer.StartSpanFromContext(ctx, "Load"); span != nil {
 		ctx = newCtx
 		defer span.Finish()
 	}
@@ -105,7 +106,7 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(
+	span, ctx := tracer.StartSpanFromContext(
 		ctx,
 		"Download",
 		opentracing.Tags{
@@ -116,26 +117,29 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 			"feature_url":         p.GetFeaturesUrl(),
 			"traget_feature_file": p.GetFeaturesPath(),
 		},
-	); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
+	)
+	defer span.Finish()
 
 	model := p.Model
 	if model.Model.IsArchive {
 		baseURL := model.Model.BaseUrl
+		span.LogFields(
+			olog.String("event", "download model archive"),
+		)
 		_, err := downloadmanager.DownloadInto(baseURL, p.WorkDir, downloadmanager.Context(ctx))
 		if err != nil {
 			return errors.Wrapf(err, "failed to download model archive from %v", model.Model.BaseUrl)
 		}
 		return nil
 	}
-
 	checksum := p.GetGraphChecksum()
 	if checksum == "" {
 		return errors.New("Need graph file checksum in the model manifest")
 	}
 
+	span.LogFields(
+		olog.String("event", "download graph"),
+	)
 	if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath(), downloadmanager.MD5Sum(checksum)); err != nil {
 		return err
 	}
@@ -145,6 +149,9 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		return errors.New("Need weights file checksum in the model manifest")
 	}
 
+	span.LogFields(
+		olog.String("event", "download weights"),
+	)
 	if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath(), downloadmanager.MD5Sum(checksum)); err != nil {
 		return err
 	}
@@ -154,6 +161,9 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		return errors.New("Need features file checksum in the model manifest")
 	}
 
+	span.LogFields(
+		olog.String("event", "download features"),
+	)
 	if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath(), downloadmanager.MD5Sum(checksum)); err != nil {
 		return err
 	}
@@ -162,21 +172,29 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "LoadPredictor"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
+	span, ctx := tracer.StartSpanFromContext(ctx, "LoadPredictor")
 
+	defer span.Finish()
+
+	span.LogFields(
+		olog.String("event", "read graph"),
+	)
 	symbol, err := ioutil.ReadFile(p.GetGraphPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
 	}
 
+	span.LogFields(
+		olog.String("event", "read weights"),
+	)
 	params, err := ioutil.ReadFile(p.GetWeightsPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetWeightsPath())
 	}
 
+	span.LogFields(
+		olog.String("event", "read features"),
+	)
 	var features []string
 	f, err := os.Open(p.GetFeaturesPath())
 	if err != nil {
@@ -195,6 +213,9 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		return err
 	}
 
+	span.LogFields(
+		olog.String("event", "creating predictor"),
+	)
 	pred, err := gomxnet.CreatePredictor(
 		gomxnet.Symbol(symbol),
 		gomxnet.Weights(params),
@@ -210,33 +231,39 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlframework.PredictionOptions) (dlframework.Features, error) {
-	if span, newCtx := opentracing.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
+	span, ctx := tracer.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
 		"framework_name":    p.Model.GetFramework().GetName(),
 		"framework_version": p.Model.GetFramework().GetVersion(),
-	}); span != nil {
-		ctx = newCtx
-
-		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
-			profile.Start()
-			defer func() {
-				profile.Stop()
-				profile.Publish(ctx, "layers")
-				profile.Delete()
-			}()
-		}
-		defer span.Finish()
+	})
+	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
+		profile.Start()
+		defer func() {
+			profile.Stop()
+			profile.Publish(ctx, "layers")
+			profile.Delete()
+		}()
 	}
+	defer span.Finish()
 
+	span.LogFields(
+		olog.String("event", "setting input"),
+	)
 	if err := p.predictor.SetInput("data", data); err != nil {
 		return nil, err
 	}
 
+	span.LogFields(
+		olog.String("event", "forward"),
+	)
 	if err := p.predictor.Forward(); err != nil {
 		return nil, err
 	}
 
+	span.LogFields(
+		olog.String("event", "getting output"),
+	)
 	probabilities, err := p.predictor.GetOutput(0)
 	if err != nil {
 		return nil, err
