@@ -65,6 +65,7 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 				Framework:         framework,
 				Model:             model,
 				PredictionOptions: opts,
+				Tracer:            tracer,
 			},
 			WorkDir: workDir,
 		},
@@ -106,16 +107,16 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(
+	span, ctx := p.GetTracer().StartSpanFromContext(
 		ctx,
 		"Download",
 		opentracing.Tags{
 			"graph_url":           p.GetGraphUrl(),
-			"traget_graph_file":   p.GetGraphPath(),
+			"target_graph_file":   p.GetGraphPath(),
 			"weights_url":         p.GetWeightsUrl(),
-			"traget_weights_file": p.GetWeightsPath(),
+			"target_weights_file": p.GetWeightsPath(),
 			"feature_url":         p.GetFeaturesUrl(),
-			"traget_feature_file": p.GetFeaturesPath(),
+			"target_feature_file": p.GetFeaturesPath(),
 		},
 	)
 	defer span.Finish()
@@ -172,7 +173,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, "LoadPredictor")
+	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "LoadPredictor")
 
 	defer span.Finish()
 
@@ -231,7 +232,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlframework.PredictionOptions) (dlframework.Features, error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
+	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
 		"framework_name":    p.Model.GetFramework().GetName(),
