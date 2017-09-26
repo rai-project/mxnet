@@ -217,6 +217,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	span.LogFields(
 		olog.String("event", "creating predictor"),
 	)
+
 	pred, err := gomxnet.CreatePredictor(
 		gomxnet.Symbol(symbol),
 		gomxnet.Weights(params),
@@ -231,13 +232,16 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	return nil
 }
 
-func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlframework.PredictionOptions) (dlframework.Features, error) {
-	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "Predict", opentracing.Tags{
+func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlframework.PredictionOptions) ([]dlframework.Features, error) {
+
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
 		"framework_name":    p.Model.GetFramework().GetName(),
 		"framework_version": p.Model.GetFramework().GetVersion(),
+		"batch_size":        p.BatchSize(),
 	})
+
 	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 		profile.Start()
 		defer func() {
@@ -248,10 +252,12 @@ func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlfra
 	}
 	defer span.Finish()
 
-	span.LogFields(
-		olog.String("event", "setting input"),
-	)
-	if err := p.predictor.SetInput("data", data); err != nil {
+	var input []float32
+	for _, v := range data {
+		input = append(input, v...)
+	}
+
+	if err := p.predictor.SetInput("data", input); err != nil {
 		return nil, err
 	}
 
@@ -270,17 +276,25 @@ func (p *ImagePredictor) Predict(ctx context.Context, data []float32, opts dlfra
 		return nil, err
 	}
 
-	rprobs := make([]*dlframework.Feature, len(probabilities))
-	for ii, prob := range probabilities {
-		rprobs[ii] = &dlframework.Feature{
-			Index:       int64(ii),
-			Name:        p.features[ii],
-			Probability: prob,
-		}
+	var output []dlframework.Features
+	batchSize := int(opts.GetBatchSize())
+	if batchSize == 0 {
+		batchSize = 1
 	}
-	res := dlframework.Features(rprobs)
+	length := len(probabilities) / batchSize
+	for i := 0; i < batchSize; i++ {
+		rprobs := make([]*dlframework.Feature, length)
+		for j := 0; j < length; j++ {
+			rprobs[j] = &dlframework.Feature{
+				Index:       int64(j),
+				Name:        p.features[j],
+				Probability: probabilities[i*length+j],
+			}
+		}
+		output = append(output, rprobs)
+	}
 
-	return res, nil
+	return output, nil
 }
 
 func (p *ImagePredictor) Reset(ctx context.Context) error {
