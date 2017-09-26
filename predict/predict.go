@@ -234,7 +234,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlframework.PredictionOptions) ([]dlframework.Features, error) {
 
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Predict", opentracing.Tags{
+	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
 		"framework_name":    p.Model.GetFramework().GetName(),
