@@ -44,10 +44,9 @@ func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (c
 }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
-	if span, newCtx := tracer.StartSpanFromContext(ctx, "Load"); span != nil {
-		ctx = newCtx
-		defer span.Finish()
-	}
+	span, newCtx := tracer.StartSpanFromContext(ctx, "Load")
+	ctx = newCtx
+	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
 	if err != nil {
@@ -174,7 +173,6 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "LoadPredictor")
-
 	defer span.Finish()
 
 	span.LogFields(
@@ -233,7 +231,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlframework.PredictionOptions) ([]dlframework.Features, error) {
-
 	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "Predict", opentracing.Tags{
 		"model_name":        p.Model.GetName(),
 		"model_version":     p.Model.GetVersion(),
