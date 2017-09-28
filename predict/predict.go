@@ -246,7 +246,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlf
 		profile.Start()
 		defer func() {
 			profile.Stop()
-			profile.Publish(ctx, "layers")
+			profile.Publish(ctx, p.GetTracer())
 			profile.Delete()
 		}()
 	}
