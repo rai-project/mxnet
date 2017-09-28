@@ -44,8 +44,7 @@ func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (c
 }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
-	span, newCtx := tracer.StartSpanFromContext(ctx, "Load")
-	ctx = newCtx
+	span, ctx := tracer.StartSpanFromContext(ctx, "Load")
 	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
