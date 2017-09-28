@@ -69,11 +69,11 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 		},
 	}
 
-	if ip.download(ctx) != nil {
+	if err = ip.download(ctx); err != nil {
 		return nil, err
 	}
 
-	if ip.loadPredictor(ctx) != nil {
+	if err = ip.loadPredictor(ctx); err != nil {
 		return nil, err
 	}
 
