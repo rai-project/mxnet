@@ -16,6 +16,7 @@ import (
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
 	gomxnet "github.com/rai-project/go-mxnet-predictor/mxnet"
+	"github.com/rai-project/image"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
 	context "golang.org/x/net/context"
@@ -101,6 +102,7 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 		Scale:     scale,
 		Size:      []int{int(imageDims[1]), int(imageDims[2])},
 		ColorMode: types.RGBMode,
+		Layout:    image.CHWLayout,
 	}, nil
 }
 
