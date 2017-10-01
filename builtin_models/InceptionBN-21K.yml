@@ -1,8 +1,8 @@
-name: Inception-21k # name of your model
+name: InceptionBN-21K # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.11.0 # framework version contraint
-version: 3.0 # version information in semantic version format
+version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
@@ -38,18 +38,17 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
-    features_checksum: 4d234b5833aca44928065a180db3016a
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset-21k.txt
+    features_checksum: 851bbe06499cf53fa6f8fb72ad61e906
 model: # specifies model graph and weights resources
-  base_url: http://data.dmlc.ml/mxnet/models/imagenet/inception-21k.tar.gz
-  graph_path: Inception-symbol.json
-  weights_path: Inception-0009.params
+  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/inception-21k/Inception-symbol.json
+  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/inception-21k/Inception-0009.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
+  graph_checksum: 8cb55dba6666df2d7c6e6baa43eb99c8
+  weights_checksum: ff095008c3859c08ab328f774e0bc774
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet-21k # dataset used to for training
   manifest_author: abduld
-hidden: true
-
