@@ -36,7 +36,7 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://data.dmlc.ml/mxnet/models/imagenet/resnet/synset.txt
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
   base_url: http://data.dmlc.ml/models/imagenet/resnet/152-layers/

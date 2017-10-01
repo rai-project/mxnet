@@ -41,8 +41,9 @@ output:
     features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset-21k.txt
     features_checksum: 851bbe06499cf53fa6f8fb72ad61e906
 model: # specifies model graph and weights resources
-  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/inception-21k/Inception-symbol.json
-  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/inception-21k/Inception-0009.params
+  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/inception-21k/
+  graph_path: Inception-symbol.json
+  weights_path: Inception-0009.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
