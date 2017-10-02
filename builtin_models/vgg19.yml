@@ -6,20 +6,19 @@ version: 1.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
-    gpu: raiproject/carml-mxnet:amd64-cpu
-    cpu: raiproject/carml-mxnet:amd64-gpu
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
   ppc64le:
-    cpu: raiproject/carml-mxnet:ppc64le-gpu
-    gpu: raiproject/carml-mxnet:ppc64le-gpu
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  This model is a pretrained model on ILSVRC2012 dataset.
-  This model is able to achieve 71.0% Top-1 Accuracy and 89.8% Top-5 accuracy on ILSVRC2012-Validation Set.
-  The model is converted from caffemodel and they are widely used in transfer learning like object detection and image semantic segmentation.
+  The model is an improved version of the 19-layer model used by the VGG team in the ILSVRC-2014 competition.
 references: # references to papers / websites / etc.. describing the model
-  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-vgg.md
+  - https://gist.github.com/ksimonyan/3785162f95cd2d5fee77
+  - https://github.com/BVLC/caffe/wiki/Model-Zoo#models-used-by-the-vgg-team-in-ilsvrc-2014
   - https://arxiv.org/abs/1409.1556
 # license of the model
-license: MIT
+license: CC BY 4.0 (commercial use is allowed)
 # inputs to the model
 inputs:
   # first input type for the model
@@ -28,6 +27,7 @@ inputs:
     description: the input image
     parameters: # type parameters
       dimensions: [3, 224, 224]
+      mean: [123.68, 116.779, 103.939]
 output:
   # the type of the output
   type: feature
@@ -35,17 +35,16 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
-  base_url: http://data.dmlc.ml/models/imagenet/vgg/
-  graph_path: vgg19-symbol.json
-  weights_path: vgg19-0000.params
+  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/vgg19/vgg19-symbol.json
+  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/vgg19/vgg19-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
-  graph_checksum: 2834785b11dfab63ce0a2b3a1992bd70
-  weights_checksum: 4c42328f3ca4a3f0acf769ba65e7ea07
+  graph_checksum: 603f96ca639e60463c2b2a6980d0bc9f
+  weights_checksum: 1d63fb9727a7deaef2d2e6b30b07a9a9
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training

@@ -1,23 +1,26 @@
-name: ResNet101 # name of your model
+name: ResNet50 # name of your model
 framework:
   name: MXNet # framework for the model
-  version: 0.11.0 # framework version contrain
-version: 1.0 # version information in semantic version format
+  version: 0.11.0 # framework version contraint
+version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
-    gpu: raiproject/carml-caffe:amd64-cpu
-    cpu: raiproject/carml-caffe:amd64-gpu
+    gpu: raiproject/carml-mxnet:amd64-cpu
+    cpu: raiproject/carml-mxnet:amd64-gpu
   ppc64le:
-    cpu: raiproject/carml-caffe:ppc64le-gpu
-    gpu: raiproject/carml-caffe:ppc64le-gpu
+    cpu: raiproject/carml-mxnet:ppc64le-gpu
+    gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  TODO
+  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
+  This network consists of 50 layers.
+  It is able to achieve 24.39% Top-1 Error and 7.24% Top-5 Error on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
+  - https://github.com/tornadomeet/ResNet
   - https://github.com/KaimingHe/deep-residual-networks
   - https://arxiv.org/abs/1512.03385
 # license of the model
-license: unrestricted
+license: MIT
 # inputs to the model
 inputs:
   # first input type for the model
@@ -26,7 +29,6 @@ inputs:
     description: the input image
     parameters: # type parameters
       dimensions: [3, 224, 224]
-      mean: [123.68, 116.779, 103.939]
 output:
   # the type of the output
   type: feature
@@ -37,13 +39,14 @@ output:
     features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
-  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/resnet50/resnet-50-symbol.json
-  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/resnet50/resnet-50-0000.params
+  base_url: http://data.dmlc.ml/models/imagenet/resnet/50-layers/
+  graph_path: resnet-50-symbol.json
+  weights_path: resnet-50-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
-  graph_checksum: 62a5f507f926d80fe16abdb068c5a095
-  weights_checksum: eb217fadbefa91975f26155d3f30ab94
+  graph_checksum: 2989c88d1d6629b777949a3ae695a42e
+  weights_checksum: 246423771006aaf77acf68c99852f5b5
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training

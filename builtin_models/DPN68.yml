@@ -1,26 +1,22 @@
-name: ResNet18 # name of your model
+name: DPN68 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.11.0 # framework version contraint
-version: 2.0 # version information in semantic version format
+version: 1.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
-    gpu: raiproject/carml-mxnet:amd64-cpu
-    cpu: raiproject/carml-mxnet:amd64-gpu
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
   ppc64le:
-    cpu: raiproject/carml-mxnet:ppc64le-gpu
-    gpu: raiproject/carml-mxnet:ppc64le-gpu
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
-  This network consists of 18 layers.
-  It is able to achieve 30.48% Top-1 Error and 10.92% Top-5 Error on ILSVRC2012-Validation Set.
+  TODO
 references: # references to papers / websites / etc.. describing the model
-  - https://github.com/tornadomeet/ResNet
-  - https://github.com/KaimingHe/deep-residual-networks
-  - https://arxiv.org/abs/1512.03385
+  - https://github.com/cypw/DPNs
 # license of the model
-license: MIT
+license: unrestricted
 # inputs to the model
 inputs:
   # first input type for the model
@@ -29,6 +25,8 @@ inputs:
     description: the input image
     parameters: # type parameters
       dimensions: [3, 224, 224]
+      mean: [124.0, 117.0, 104.0]
+      scale: 59.880239521
 output:
   # the type of the output
   type: feature
@@ -39,15 +37,16 @@ output:
     features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
-  base_url: http://data.dmlc.ml/models/imagenet/resnet/18-layers/
-  graph_path: resnet-18-symbol.json
-  weights_path: resnet-18-0000.params
+  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/dpn68/dpn68-symbol.json
+  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/dpn68/dpn68-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
-  graph_checksum: 8c0170478642cf0c1c77995769ecf329
-  weights_checksum: dd1b81f8f818395036a3f9d17b31baea
+  graph_checksum: b642582315c905d56b4e262065c3b8c1
+  weights_checksum: 3784e62ee072ae8fc0fefab4c484d46a
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training
   manifest_author: abduld
+# hidden: true # Message type "caffe.PoolingParameter" has no field named "ceil_mode"
+# https://github.com/BVLC/caffe/pull/3057/files
