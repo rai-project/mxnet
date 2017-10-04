@@ -36,6 +36,7 @@ inputs:
     description: the input image
     parameters: # type parameters
       dimensions: [3, 227, 227]
+      mean: [123, 117, 104]
 output:
   # the type of the output
   type: feature
