@@ -13,12 +13,14 @@ import (
 	"github.com/rai-project/config"
 	"github.com/rai-project/dlframework"
 	agent "github.com/rai-project/dlframework/framework/agent"
+	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
 	gomxnet "github.com/rai-project/go-mxnet-predictor/mxnet"
 	"github.com/rai-project/image"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
+	"github.com/rai-project/tracer"
 	context "golang.org/x/net/context"
 )
 
@@ -64,7 +66,7 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 				Framework:         framework,
 				Model:             model,
 				PredictionOptions: opts,
-				Tracer:            tracer,
+				Tracer:            tracer.Std(),
 			},
 			WorkDir: workDir,
 		},
@@ -218,11 +220,16 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		olog.String("event", "creating predictor"),
 	)
 
+	predOpts, err := p.GetPredictionOptions(ctx)
+	if err != nil {
+		return err
+	}
+
 	pred, err := gomxnet.CreatePredictor(
-		gomxnet.Symbol(symbol),
-		gomxnet.Weights(params),
-		gomxnet.InputNode("data", inputDims),
-		gomxnet.BatchSize(p.BatchSize()),
+		options.Symbol(symbol),
+		options.Weights(params),
+		options.InputNode("data", inputDims),
+		options.PredictorOptions(predOpts),
 	)
 	if err != nil {
 		return err
@@ -238,7 +245,8 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlf
 		"model_version":     p.Model.GetVersion(),
 		"framework_name":    p.Model.GetFramework().GetName(),
 		"framework_version": p.Model.GetFramework().GetVersion(),
-		"batch_size":        p.BatchSize(),
+		"batch_size":        p.predictor.Options().BatchSize(),
+		"device":            p.predictor.Options().Devices().String(),
 	})
 
 	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
@@ -303,7 +311,7 @@ func (p *ImagePredictor) Reset(ctx context.Context) error {
 
 func (p *ImagePredictor) Close() error {
 	if p.predictor != nil {
-		p.predictor.Free()
+		p.predictor.Close()
 	}
 
 	return nil
