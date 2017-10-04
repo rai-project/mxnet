@@ -30,7 +30,7 @@ type ImagePredictor struct {
 	predictor *gomxnet.Predictor
 }
 
-func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
+func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 	modelInputs := model.GetInputs()
 	if len(modelInputs) != 1 {
 		return nil, errors.New("number of inputs not supported")
@@ -43,10 +43,10 @@ func New(model dlframework.ModelManifest, opts dlframework.PredictionOptions) (c
 
 	predictor := new(ImagePredictor)
 
-	return predictor.Load(context.Background(), model, opts)
+	return predictor.Load(context.Background(), model, opts...)
 }
 
-func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts dlframework.PredictionOptions) (common.Predictor, error) {
+func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 	span, ctx := tracer.StartSpanFromContext(ctx, "Load")
 	defer span.Finish()
 
@@ -63,10 +63,9 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 	ip := &ImagePredictor{
 		ImagePredictor: common.ImagePredictor{
 			Base: common.Base{
-				Framework:         framework,
-				Model:             model,
-				PredictionOptions: opts,
-				Tracer:            tracer.Std(),
+				Framework: framework,
+				Model:     model,
+				Options:   options.New(opts...),
 			},
 			WorkDir: workDir,
 		},
@@ -109,7 +108,7 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	span, ctx := p.GetTracer().StartSpanFromContext(
+	span, ctx := opentracing.StartSpanFromContext(
 		ctx,
 		"Download",
 		opentracing.Tags{
@@ -176,7 +175,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "LoadPredictor")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "LoadPredictor")
 	defer span.Finish()
 
 	span.LogFields(
@@ -220,16 +219,16 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		olog.String("event", "creating predictor"),
 	)
 
-	predOpts, err := p.GetPredictionOptions(ctx)
+	opts, err := p.GetPredictionOptions(ctx)
 	if err != nil {
 		return err
 	}
 
 	pred, err := gomxnet.CreatePredictor(
+		options.WithOptions(opts),
 		options.Symbol(symbol),
 		options.Weights(params),
 		options.InputNode("data", inputDims),
-		options.PredictorOptions(predOpts),
 	)
 	if err != nil {
 		return err
@@ -239,25 +238,19 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	return nil
 }
 
-func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlframework.PredictionOptions) ([]dlframework.Features, error) {
-	span, ctx := p.GetTracer().StartSpanFromContext(ctx, "Predict", opentracing.Tags{
-		"model_name":        p.Model.GetName(),
-		"model_version":     p.Model.GetVersion(),
-		"framework_name":    p.Model.GetFramework().GetName(),
-		"framework_version": p.Model.GetFramework().GetVersion(),
-		"batch_size":        p.predictor.Options().BatchSize(),
-		"device":            p.predictor.Options().Devices().String(),
-	})
+func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
+	span := opentracing.SpanFromContext(ctx)
+
+	options := options.New(opts...)
 
 	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 		profile.Start()
 		defer func() {
 			profile.Stop()
-			profile.Publish(ctx, p.GetTracer())
+			profile.Publish(ctx)
 			profile.Delete()
 		}()
 	}
-	defer span.Finish()
 
 	var input []float32
 	for _, v := range data {
@@ -284,10 +277,8 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts dlf
 	}
 
 	var output []dlframework.Features
-	batchSize := int(opts.GetBatchSize())
-	if batchSize == 0 {
-		batchSize = 1
-	}
+	batchSize := int(options.BatchSize())
+
 	length := len(probabilities) / batchSize
 	for i := 0; i < batchSize; i++ {
 		rprobs := make([]*dlframework.Feature, length)
