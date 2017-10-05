@@ -17,7 +17,7 @@ addons:
     - glide
 before_install:
   - docker pull carml/go-mxnet:amd64-gpu-latest
-  - docker run -d -p carml/go-mxnet:amd64-gpu-latest /bin/sh -c "ls -l;"
+  - docker run -d carml/go-mxnet:amd64-gpu-latest /bin/sh -c "ls -l;"
   - docker ps -a
 install:
   - glide install --force
