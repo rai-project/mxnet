@@ -6,13 +6,19 @@ matrix:
   allow_failures:
     - go: tip
 dist: trusty
-sudo: false
+sudo: required
+services:
+  - docker
 addons:
   apt:
     sources:
     - sourceline: ppa:masterminds/glide
     packages:
     - glide
+before_install:
+  - docker pull carml/go-mxnet:amd64-gpu-latest
+  - docker run -d -p carml/go-mxnet:amd64-gpu-latest /bin/sh -c "ls -l;"
+  - docker ps -a
 install:
   - glide install --force
   - rm -fr vendor/github.com/Sirupsen
