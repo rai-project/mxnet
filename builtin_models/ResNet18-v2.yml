@@ -1,4 +1,4 @@
-name: o-ResNet18 # name of your model
+name: ResNet18 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.11.0 # framework version contraint
