@@ -1,8 +1,8 @@
-name: o-Inception # name of your model
+name: o-ResNet152 # name of your model
 framework:
   name: MXNet # framework for the model
   version: 0.11.0 # framework version contraint
-version: 3.0 # version information in semantic version format
+version: 2.0 # version information in semantic version format
 container: # containers used to perform model prediction
            # multiple platforms can be specified
   amd64:
@@ -12,13 +12,13 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-mxnet:ppc64le-gpu
     gpu: raiproject/carml-mxnet:ppc64le-gpu
 description: >
-  This model is converted from TensorFlow Pretrained Inception-V3 model. Original licence is attached.
-  By single crop on 299 x 299 image from 384 x 384 image, this model is able to achieve 76.88% Top-1 Accuracy and 93.34% Top-5 Accuracy.
-  Difference to reported accuracy may due to crop from different size of image.
-  This model uses different preprocessing method.
+  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
+  This network consists of 152 layers.
+  It is able to achieve 22.25% Top-1 Error and 6.42% Top-5 Error on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
-  - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-inception-v3.md
-  - https://arxiv.org/abs/1512.00567
+  - https://github.com/tornadomeet/ResNet
+  - https://github.com/KaimingHe/deep-residual-networks
+  - https://arxiv.org/abs/1512.03385
 # license of the model
 license: MIT
 # inputs to the model
@@ -28,9 +28,7 @@ inputs:
     # description of the first input
     description: the input image
     parameters: # type parameters
-      dimensions: [3, 299, 299]
-      mean: [128, 128, 128]
-      scale: 128
+      dimensions: [3, 224, 224]
 output:
   # the type of the output
   type: feature
@@ -38,18 +36,18 @@ output:
   description: the output label
   parameters:
     # type parameters
-    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset1008.txt
-    features_checksum: 2bb228d6cf55ae4e6409f55fc81fcfe7
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights resources
-  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/o-inception-v3/
-  graph_path: Inception-7-symbol.json
-  weights_path: Inception-7-0001.params
+  base_url: http://data.dmlc.ml/models/imagenet/resnet/152-layers/
+  graph_path: resnet-152-symbol.json
+  weights_path: resnet-152-0000.params
   is_archive: false # if set, then the base_url is a url to an archive
                     # the graph_path and weights_path then denote the
                     # file names of the graph and weights within the archive
-  graph_checksum: b8e37858453e3fb497068c84712c5b8d
-  weights_checksum: ff3fe556b8092de96efd59f32a64558f
+  graph_checksum: afc974eb8440cc7ce37fe49d051e805b
+  weights_checksum: 84c77aa3ae6dcd35aecf226788dc78f8
 attributes: # extra network attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
-  training_dataset: ImageNet# dataset used to for training
+  training_dataset: ImageNet # dataset used to for training
   manifest_author: abduld
