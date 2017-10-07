@@ -15,6 +15,7 @@ description: >
   This model is a pretrained model on ILSVRC2012[1] dataset.
   It is able to achieve 58.8% Top-1 Accuracy and 81.3% Top-5 accuracy on ILSVRC2012-Validation Set.
 references: # references to papers / websites / etc.. describing the model
+  - https://gist.github.com/mavenlin/d802a5849de39225bcc6
   - https://github.com/dmlc/mxnet-model-gallery/blob/master/imagenet-1k-nin.md
   - https://arxiv.org/abs/1312.4400
 # license of the model
