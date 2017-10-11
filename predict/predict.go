@@ -241,8 +241,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
 	span := opentracing.SpanFromContext(ctx)
 
-	options := options.New(opts...)
-
 	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 		profile.Start()
 		defer func() {
@@ -277,9 +275,9 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 	}
 
 	var output []dlframework.Features
-	batchSize := int(options.BatchSize())
-
+	batchSize := int(p.BatchSize())
 	length := len(probabilities) / batchSize
+
 	for i := 0; i < batchSize; i++ {
 		rprobs := make([]*dlframework.Feature, length)
 		for j := 0; j < length; j++ {
