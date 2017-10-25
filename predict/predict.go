@@ -5,7 +5,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
+
+	"github.com/rai-project/tracer"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
@@ -20,7 +21,6 @@ import (
 	"github.com/rai-project/image"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
-	"github.com/rai-project/tracer"
 	context "golang.org/x/net/context"
 )
 
@@ -30,24 +30,24 @@ type ImagePredictor struct {
 	predictor *gomxnet.Predictor
 }
 
-func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-	modelInputs := model.GetInputs()
-	if len(modelInputs) != 1 {
-		return nil, errors.New("number of inputs not supported")
-	}
+// func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
+// 	modelInputs := model.GetInputs()
+// 	if len(modelInputs) != 1 {
+// 		return nil, errors.New("number of inputs not supported")
+// 	}
 
-	firstInputType := modelInputs[0].GetType()
-	if strings.ToLower(firstInputType) != "image" {
-		return nil, errors.New("input type not supported")
-	}
+// 	firstInputType := modelInputs[0].GetType()
+// 	if strings.ToLower(firstInputType) != "image" {
+// 		return nil, errors.New("input type not supported")
+// 	}
 
-	predictor := new(ImagePredictor)
+// 	predictor := new(ImagePredictor)
 
-	return predictor.Load(context.Background(), model, opts...)
-}
+// 	return predictor.Load(context.Background(), model, opts...)
+// }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-	span, ctx := tracer.StartSpanFromContext(ctx, "Load")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "Load")
 	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
@@ -241,13 +241,15 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
 	span := opentracing.SpanFromContext(ctx)
 
-	if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
-		profile.Start()
-		defer func() {
-			profile.Stop()
-			profile.Publish(ctx)
-			profile.Delete()
-		}()
+	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
+		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
+			profile.Start()
+			defer func() {
+				profile.Stop()
+				profile.Publish(ctx)
+				profile.Delete()
+			}()
+		}
 	}
 
 	var input []float32
