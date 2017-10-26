@@ -48,7 +48,7 @@ type ImagePredictor struct {
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 	predOpts := options.New(opts...)
-	span, ctx := tracer.StartSpanFromContext(ctx, predOpts.TraceLevel(), "Load")
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "Load")
 	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
@@ -109,9 +109,8 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(
-		ctx,
-		p.TraceLevel(),
+	span, ctx := tracer.StartSpanFromContext(ctx,
+		tracer.STEP_TRACE,
 		"Download",
 		opentracing.Tags{
 			"graph_url":           p.GetGraphUrl(),
@@ -177,7 +176,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, p.TraceLevel(), "LoadPredictor")
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "LoadPredictor")
 	defer span.Finish()
 
 	span.LogFields(
@@ -241,8 +240,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
-	span := opentracing.SpanFromContext(ctx)
-
 	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
 		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
@@ -263,16 +260,10 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 		return nil, err
 	}
 
-	span.LogFields(
-		olog.String("event", "forward"),
-	)
 	if err := p.predictor.Forward(); err != nil {
 		return nil, err
 	}
 
-	span.LogFields(
-		olog.String("event", "getting output"),
-	)
 	probabilities, err := p.predictor.GetOutput(0)
 	if err != nil {
 		return nil, err
