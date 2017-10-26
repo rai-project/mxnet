@@ -47,7 +47,8 @@ type ImagePredictor struct {
 // }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "Load")
+	predOpts := options.New(opts...)
+	span, ctx := tracer.StartSpanFromContext(ctx, predOpts.TraceLevel(), "Load")
 	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
@@ -65,7 +66,7 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 			Base: common.Base{
 				Framework: framework,
 				Model:     model,
-				Options:   options.New(opts...),
+				Options:   predOpts,
 			},
 			WorkDir: workDir,
 		},
@@ -108,8 +109,9 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 }
 
 func (p *ImagePredictor) download(ctx context.Context) error {
-	span, ctx := opentracing.StartSpanFromContext(
+	span, ctx := tracer.StartSpanFromContext(
 		ctx,
+		p.TraceLevel(),
 		"Download",
 		opentracing.Tags{
 			"graph_url":           p.GetGraphUrl(),
@@ -175,7 +177,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "LoadPredictor")
+	span, ctx := tracer.StartSpanFromContext(ctx, p.TraceLevel(), "LoadPredictor")
 	defer span.Finish()
 
 	span.LogFields(
