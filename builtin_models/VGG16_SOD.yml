@@ -12,7 +12,9 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  TODO
+  The following model are finetuned on the Salient Object Subitizing dataset (~5000 images) with bounding box annotations.
+  CNN models for the following CVPR'16 paper- Unconstrained Salient Object Detection via Proposal Subset Optimization
+  J. Zhang, S. Sclaroff, Z. Lin, X. Shen, B. Price and R. Mech. CVPR, 2016.
 references: # references to papers / websites / etc.. describing the model
   - https://gist.github.com/jimmie33/509111f8a00a9ece2c3d5dde6a750129
   - https://github.com/jimmie33/SOD

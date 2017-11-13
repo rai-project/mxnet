@@ -12,7 +12,10 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  TODO
+  Inception-ResNet-v2, a convolutional neural network (CNN) that achieves a new state of the art in terms of accuracy on the
+  ILSVRC image classification benchmark. Inception-ResNet-v2 is a variation of our earlier Inception V3 model which borrows
+  some ideas from Microsoft's ResNet papers. The full details of the model are in our arXiv preprint Inception-v4,
+  Inception-ResNet and the Impact of Residual Connections on Learning.
 references: # references to papers / websites / etc.. describing the model
   - https://github.com/soeaver/caffe-model/tree/master/cls
   - https://arxiv.org/abs/1602.07261

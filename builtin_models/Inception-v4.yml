@@ -12,7 +12,8 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  TODO
+  More uniform  simplified  architecture  and  more  inception  modules than Inception-v3.
+  Achieved 3.08% top-5 error on the test set of the ImageNet classification (CLS) challenge.
 references: # references to papers / websites / etc.. describing the model
   - https://github.com/soeaver/caffe-model/tree/master/cls
   - https://arxiv.org/abs/1602.07261

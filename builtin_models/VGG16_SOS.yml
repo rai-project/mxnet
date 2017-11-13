@@ -12,7 +12,7 @@ container: # containers used to perform model prediction
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  TODO
+  VGG16 finetuned on the Salient Object Subitizing (SOS) dataset, which is described in the CVPR'15 paper: "Salient Object Subitizing"
 references: # references to papers / websites / etc.. describing the model
   - https://gist.github.com/jimmie33/27c1c0a7736ba66c2395
   - http://cs-people.bu.edu/jmzhang/sos.html
