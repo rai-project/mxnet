@@ -33,6 +33,6 @@ func assetFS() *assetfs.AssetFS {
 	panic("unreachable")
 }
 
-func init() {
+func Register() {
 	framework.Register(FrameworkManifest, assetFS())
 }
