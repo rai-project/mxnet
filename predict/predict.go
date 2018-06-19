@@ -8,6 +8,7 @@ import (
 
 	"github.com/rai-project/tracer"
 
+	context "context"
 	opentracing "github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
@@ -21,7 +22,6 @@ import (
 	"github.com/rai-project/image"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
-	context "golang.org/x/net/context"
 )
 
 type ImagePredictor struct {
