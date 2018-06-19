@@ -29,9 +29,6 @@ import:
 - package: github.com/rai-project/logger
 - package: github.com/sirupsen/logrus
   version: ^1.0.0
-- package: golang.org/x/net
-  subpackages:
-  - context
 - package: gopkg.in/fatih/set.v0
   version: ^0.1.0
 - package: github.com/GeertJohan/go.rice
