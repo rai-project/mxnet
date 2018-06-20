@@ -4,6 +4,7 @@ import:
   version: ^2.0.0
 - package: github.com/elazarl/go-bindata-assetfs
 - package: github.com/gogo/protobuf
+  version: ^1.0.0
   subpackages:
   - gogoproto
   - proto
