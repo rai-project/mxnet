@@ -19,7 +19,6 @@ import:
   subpackages:
   - framework
   - framework/agent
-  - framework/cmd/server
   - framework/predict
 - package: github.com/rai-project/downloadmanager
 - package: github.com/rai-project/go-mxnet-predictor
