@@ -242,7 +242,17 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
 	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
-		if profile, err := gomxnet.NewProfile(gomxnet.ProfileAllOperators, filepath.Join(p.WorkDir, "profile")); err == nil {
+                // define profiling options
+                poptions := map[string]gomxnet.ProfileMode{
+                    "profile_all": gomxnet.ProfileAllEnable,
+                    "profile_symbolic": gomxnet.ProfileSymbolicOperatorsEnable,
+                    "profile_imperative": gomxnet.ProfileImperativeOperatorsEnable,
+                    "profile_memory": gomxnet.ProfileMemoryEnable,
+                    "profile_api": gomxnet.ProfileApiEnable,
+                    "contiguous_dump": gomxnet.ProfileContiguousDumpEnable,
+                    "dump_period": gomxnet.ProfileDumpPeriod,
+                 }
+		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
 			defer func() {
 				profile.Stop()

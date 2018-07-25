@@ -68,16 +68,16 @@
   version = "v1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/VividCortex/ewma"
   packages = ["."]
-  revision = "b24eb346a94c3ba12c1da1e564dbac1b498a77ce"
-  version = "v1.1.1"
+  revision = "43880d236f695d39c62cf7aa4ebd4508c258e6c0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/VividCortex/robustly"
   packages = ["."]
-  revision = "ec98a8cbdc2b0b064c49ccfea6102f6d35bdec4d"
-  version = "v1.0"
+  revision = "6d4b5835c602cfa84eac0ff03021de37983cdaeb"
 
 [[projects]]
   name = "github.com/anthonynsimon/bild"
@@ -86,10 +86,10 @@
   version = "v0.10.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/apache/thrift"
   packages = ["lib/go/thrift"]
-  revision = "327ebb6c2b6df8bf075da02ef45a2a034e9b79ba"
-  version = "0.11.0"
+  revision = "f2867c24984aa53edec54a138c03db934221bdea"
 
 [[projects]]
   branch = "master"
@@ -185,12 +185,6 @@
   packages = ["."]
   revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
   version = "v2.0.0"
-
-[[projects]]
-  name = "github.com/cheggaaa/pb"
-  packages = ["."]
-  revision = "c112833d014c77e8bde723fd0158e3156951639f"
-  version = "v2.0.6"
 
 [[projects]]
   branch = "master"
@@ -860,12 +854,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/philopon/go-toposort"
-  packages = ["."]
-  revision = "9be86dbd762f98b5b9a4eca110a3f40ef31d0375"
-
-[[projects]]
   name = "github.com/pierrec/lz4"
   packages = [
     ".",
@@ -894,36 +882,9 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/rai-project/caffe"
-  packages = [
-    ".",
-    "predict"
-  ]
-  revision = "8b331d4cb719c7ab70ad5bae9a1dca8eda3481f4"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/caffe2"
-  packages = [
-    ".",
-    "predict"
-  ]
-  revision = "4aa8b5956ebc0da8c2b5df7be9ecc325dd6eaeba"
-
-[[projects]]
-  branch = "master"
   name = "github.com/rai-project/cmd"
   packages = ["."]
   revision = "16302904f7491e7777d69d621770f12ed9b6788f"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/cntk"
-  packages = [
-    ".",
-    "predict"
-  ]
-  revision = "80eeaab83551ef176d1dbc5c49ad7a55f49e0f0b"
 
 [[projects]]
   branch = "master"
@@ -957,7 +918,6 @@
   revision = "d6ee55e6087fd967d088465c96f656fe2f142cb8"
 
 [[projects]]
-  branch = "master"
   name = "github.com/rai-project/dlframework"
   packages = [
     ".",
@@ -969,18 +929,7 @@
     "framework/predict",
     "steps"
   ]
-  revision = "bd730dc569d606032a920e134f94e9e4f6e6f327"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/dllayer"
-  packages = [
-    ".",
-    "caffe",
-    "cmd",
-    "layer"
-  ]
-  revision = "2e15e0b36b307eb5d19e34fc1c96bd69b80c29a2"
+  revision = "eb0b9937d67b6bf363b1d177284d6c050e698821"
 
 [[projects]]
   branch = "master"
@@ -1008,27 +957,6 @@
   revision = "cd41eb1b97067a47b951a2bce5765d4307b87576"
 
 [[projects]]
-  name = "github.com/rai-project/go-caffe"
-  packages = [
-    ".",
-    "proto"
-  ]
-  revision = "0f2c8b6aaf1280fef1e4e447efc91c616db98587"
-  version = "v0.3.11"
-
-[[projects]]
-  name = "github.com/rai-project/go-caffe2"
-  packages = ["."]
-  revision = "2c50317d80939fa9a1fd1167952b3d3b46684ee9"
-  version = "v0.3.19"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/go-cntk"
-  packages = ["."]
-  revision = "37e5df01159a5dde437dda7fd91d6b4dc7307cba"
-
-[[projects]]
   branch = "master"
   name = "github.com/rai-project/go-cupti"
   packages = [
@@ -1048,12 +976,6 @@
   packages = ["mxnet"]
   revision = "d84ee30956b96d76aa170f2c738a267b23cfedb5"
   version = "v0.3.16"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/go-tensorrt"
-  packages = ["."]
-  revision = "afe0e7775026dec8659548a61b74a86a900801fc"
 
 [[projects]]
   branch = "master"
@@ -1189,30 +1111,11 @@
 
 [[projects]]
   branch = "master"
-  name = "github.com/rai-project/tensorflow"
-  packages = [
-    ".",
-    "predict"
-  ]
-  revision = "761d0a3913d4d968eca9ddbee31920c8cea77f83"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/rai-project/tensorrt"
-  packages = [
-    ".",
-    "predict"
-  ]
-  revision = "73b44c59ffd8dc4428127ec07227760754e12f57"
-
-[[projects]]
-  branch = "master"
   name = "github.com/rai-project/tracer"
   packages = [
     ".",
     "all",
     "chrome",
-    "ctimer",
     "defaults",
     "jaeger",
     "middleware/grpc",
@@ -1363,12 +1266,6 @@
   ]
   revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
   version = "v1.2.2"
-
-[[projects]]
-  name = "github.com/tensorflow/tensorflow"
-  packages = ["tensorflow/go"]
-  revision = "93bc2e2072e0daccbcff7a90d397b704a9e8f778"
-  version = "v1.8.0"
 
 [[projects]]
   name = "github.com/tinylib/msgp"
@@ -1715,46 +1612,15 @@
   version = "v1.13.0"
 
 [[projects]]
-  name = "gopkg.in/VividCortex/ewma.v1"
-  packages = ["."]
-  revision = "b24eb346a94c3ba12c1da1e564dbac1b498a77ce"
-  version = "v1.1.1"
-
-[[projects]]
   name = "gopkg.in/cheggaaa/pb.v2"
-  packages = ["termutil"]
-  revision = "c112833d014c77e8bde723fd0158e3156951639f"
-  version = "v2.0.6"
-
-[[projects]]
-  name = "gopkg.in/fatih/color.v1"
   packages = ["."]
-  revision = "5b77d2a35fb0ede96d138fc9a99f5c9b6aef11b4"
-  version = "v1.7.0"
+  revision = "2af8bbdea9e99e83b3ac400d8f6b6d1b8cbbf338"
 
 [[projects]]
   name = "gopkg.in/fatih/set.v0"
   packages = ["."]
   revision = "57907de300222151a123d29255ed17f5ed43fad3"
   version = "v0.1.0"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-colorable.v0"
-  packages = ["."]
-  revision = "167de6bfdfba052fa6b2d3664c8f5272e23c9072"
-  version = "v0.0.9"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-isatty.v0"
-  packages = ["."]
-  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
-  version = "v0.0.3"
-
-[[projects]]
-  name = "gopkg.in/mattn/go-runewidth.v0"
-  packages = ["."]
-  revision = "9e777a8366cce605130a531d2cd6363d07ad7317"
-  version = "v0.0.2"
 
 [[projects]]
   branch = "v2"
@@ -1787,6 +1653,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a8eb6df19e89a8ddc56448e0844818b2371b346b577e4f5b2cd73729c5a69e11"
+  inputs-digest = "81d89e4693b3407eb597aaab13beafa0720220208be7fbf5a84fd18f89d0ba0b"
   solver-name = "gps-cdcl"
   solver-version = 1

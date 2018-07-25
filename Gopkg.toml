@@ -58,7 +58,7 @@
   name = "github.com/rai-project/config"
 
 [[constraint]]
-  branch = "master"
+  revision = "eb0b9937d67b6bf363b1d177284d6c050e698821"
   name = "github.com/rai-project/dlframework"
 
 [[constraint]]
@@ -96,6 +96,14 @@
 [[constraint]]
   name = "gopkg.in/yaml.v2"
   version = "2.2.1"
+
+[[override]]
+  branch = "master"
+  name = "github.com/apache/thrift"
+
+[[override]]
+  branch = "master"
+  name = "github.com/VividCortex/robustly"
 
 [prune]
   go-tests = true
