@@ -972,10 +972,10 @@
   revision = "a3eb81100bdb1b634dce526e43ea57aa80bf4f0d"
 
 [[projects]]
+  branch = "master"
   name = "github.com/rai-project/go-mxnet-predictor"
   packages = ["mxnet"]
-  revision = "d84ee30956b96d76aa170f2c738a267b23cfedb5"
-  version = "v0.3.16"
+  revision = "311c8ef2fcfabf49e90c56d6fe0fe77e77a57307"
 
 [[projects]]
   branch = "master"
@@ -1653,6 +1653,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "81d89e4693b3407eb597aaab13beafa0720220208be7fbf5a84fd18f89d0ba0b"
+  inputs-digest = "d1cdcc97bb93d479a242cbf943629d65693067e79cd06cc4292ebdeee1c6d8a2"
   solver-name = "gps-cdcl"
   solver-version = 1
