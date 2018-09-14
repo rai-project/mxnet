@@ -249,7 +249,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
         "profile_imperative": gomxnet.ProfileImperativeOperatorsEnable,
         "profile_memory": gomxnet.ProfileMemoryEnable,
         "profile_api": gomxnet.ProfileApiEnable,
-        "contiguous_dump": gomxnet.ProfileContiguousDumpDisable,
+        "continuous_dump": gomxnet.ProfileContiguousDumpDisable,
         "dump_period": gomxnet.ProfileDumpPeriod,
       }
 		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
