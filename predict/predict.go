@@ -9,6 +9,7 @@ import (
 	"github.com/rai-project/tracer"
 
 	context "context"
+
 	opentracing "github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
@@ -45,6 +46,39 @@ type ImagePredictor struct {
 
 // 	return predictor.Load(context.Background(), model, opts...)
 // }
+
+func (p *ImagePredictor) Download(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) error {
+	predOpts := options.New(opts...)
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "Load")
+	defer span.Finish()
+
+	framework, err := model.ResolveFramework()
+	if err != nil {
+		return err
+	}
+
+	workDir, err := model.WorkDir()
+	if err != nil {
+		return err
+	}
+
+	ip := &ImagePredictor{
+		ImagePredictor: common.ImagePredictor{
+			Base: common.Base{
+				Framework: framework,
+				Model:     model,
+				Options:   predOpts,
+			},
+			WorkDir: workDir,
+		},
+	}
+
+	if err = ip.download(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 	predOpts := options.New(opts...)
@@ -242,16 +276,16 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 
 func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
 	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
-    // define profiling options
-    poptions := map[string]gomxnet.ProfileMode{
-        "profile_all": gomxnet.ProfileAllEnable,
-        "profile_symbolic": gomxnet.ProfileSymbolicOperatorsEnable,
-        "profile_imperative": gomxnet.ProfileImperativeOperatorsEnable,
-        "profile_memory": gomxnet.ProfileMemoryEnable,
-        "profile_api": gomxnet.ProfileApiEnable,
-        "continuous_dump": gomxnet.ProfileContiguousDumpDisable,
-        "dump_period": gomxnet.ProfileDumpPeriod,
-      }
+		// define profiling options
+		poptions := map[string]gomxnet.ProfileMode{
+			"profile_all":        gomxnet.ProfileAllEnable,
+			"profile_symbolic":   gomxnet.ProfileSymbolicOperatorsEnable,
+			"profile_imperative": gomxnet.ProfileImperativeOperatorsEnable,
+			"profile_memory":     gomxnet.ProfileMemoryEnable,
+			"profile_api":        gomxnet.ProfileApiEnable,
+			"continuous_dump":    gomxnet.ProfileContiguousDumpDisable,
+			"dump_period":        gomxnet.ProfileDumpPeriod,
+		}
 		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
 			defer func() {
