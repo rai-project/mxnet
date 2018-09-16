@@ -83,7 +83,7 @@ func (g *Graph) ToDotGraph() (*gographviz.Escape, error) {
 	default:
 	}
 
-	hiddenNodes := set.NewNonTS()
+	hiddenNodes := set.New(set.NonThreadSafe)
 
 	// make nodes
 	for _, node := range g.Nodes {
