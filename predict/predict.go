@@ -49,8 +49,6 @@ type ImagePredictor struct {
 
 func (p *ImagePredictor) Download(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) error {
 	predOpts := options.New(opts...)
-	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "Load")
-	defer span.Finish()
 
 	framework, err := model.ResolveFramework()
 	if err != nil {
