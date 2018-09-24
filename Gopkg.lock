@@ -1225,11 +1225,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:7860c5027d494562ca9ad203be3a24b3bef39f953dfe4f7f7b912e13391a17c2"
+  digest = "1:6b75d715deb1a506c33db0c2678157774dbc337883df1fd3d6b56085e00a3027"
   name = "github.com/rai-project/go-mxnet-predictor"
   packages = ["mxnet"]
   pruneopts = "T"
-  revision = "311c8ef2fcfabf49e90c56d6fe0fe77e77a57307"
+  revision = "1072f7c8985d7d133defae67752dc18cdec4d461"
 
 [[projects]]
   branch = "master"
@@ -1935,6 +1935,36 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:7debc0a5d7f53a7de83e858471c76f59a672d527efb6536bfeb138a68622922e"
+  name = "gonum.org/v1/gonum"
+  packages = [
+    "blas",
+    "blas/blas64",
+    "blas/gonum",
+    "floats",
+    "graph",
+    "graph/internal/linear",
+    "graph/internal/ordered",
+    "graph/internal/set",
+    "graph/internal/uid",
+    "graph/iterator",
+    "graph/simple",
+    "graph/topo",
+    "graph/traverse",
+    "internal/asm/c128",
+    "internal/asm/f32",
+    "internal/asm/f64",
+    "internal/math32",
+    "lapack",
+    "lapack/gonum",
+    "lapack/lapack64",
+    "mat",
+  ]
+  pruneopts = "T"
+  revision = "72366fbe5489967a1dc6b3f462def64018e088c3"
+
+[[projects]]
+  branch = "master"
   digest = "1:390e2795afe601cd291d7c8d59bf0356656d7a70e72ea8c2a9e3d1889fa7fbe0"
   name = "google.golang.org/api"
   packages = [
@@ -2019,12 +2049,12 @@
   revision = "2af8bbdea9e99e83b3ac400d8f6b6d1b8cbbf338"
 
 [[projects]]
-  digest = "1:3ccd10c863188cfe0d936fcfe6a055c95362e43af8e7039e33baade846928e74"
+  digest = "1:36082e0feb7257879dcc96137b12e3e185c77b46d6a9f7943bbf8178a4d4ac55"
   name = "gopkg.in/fatih/set.v0"
   packages = ["."]
   pruneopts = "T"
-  revision = "57907de300222151a123d29255ed17f5ed43fad3"
-  version = "v0.1.0"
+  revision = "2c768e3c5489976167bfc42b5c7c92ca783f4389"
+  version = "v0.2.1"
 
 [[projects]]
   branch = "v2"
