@@ -106,6 +106,15 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 		},
 	}
 
+	imageDims, err := p.GetImageDimensions()
+	if err != nil {
+		return err
+	}
+
+	ip.Options.Append(
+		options.InputNode(ip.GetInputLayerName(DefaultInputLayerName), imageDims),
+	)
+
 	if err = ip.download(ctx); err != nil {
 		return nil, err
 	}
@@ -145,8 +154,8 @@ func (p *ImagePredictor) GetPreprocessOptions(ctx context.Context) (common.Prepr
 
 func (p *ImagePredictor) download(ctx context.Context) error {
 	span, ctx := tracer.StartSpanFromContext(ctx,
-		tracer.STEP_TRACE,
-		"Download",
+		tracer.APPLICATION_TRACE,
+		"download",
 		opentracing.Tags{
 			"graph_url":           p.GetGraphUrl(),
 			"target_graph_file":   p.GetGraphPath(),
@@ -249,11 +258,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	}
 	p.features = features
 
-	inputDims, err := p.GetImageDimensions()
-	if err != nil {
-		return err
-	}
-
 	opts, err := p.GetPredictionOptions(ctx)
 	if err != nil {
 		return err
@@ -267,7 +271,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		options.WithOptions(opts),
 		options.Symbol(symbol),
 		options.Weights(params),
-		options.InputNode("data", inputDims),
 	)
 	if err != nil {
 		return err
@@ -305,15 +308,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 		input = append(input, v...)
 	}
 
-	if err := p.predictor.SetInput("data", input); err != nil {
-		return err
-	}
-
-	if err := p.predictor.Forward(); err != nil {
-		return err
-	}
-
-	probabilities, err := p.predictor.GetOutput(0)
+	err := p.predictor.Predict(ctx, input)
 	if err != nil {
 		return err
 	}
@@ -323,10 +318,18 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 
 // ReadPredictedFeatures ...
 func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframework.Features, error) {
-	predictions := p.predictor.ReadPredictedFeatures(ctx)
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "read_predicted_features")
+	defer span.Finish()
+
+	predictions := p.predictor.ReadPredictedFeatures()
+
+	probabilities, err :=
+	if err != nil {
+		return nil, err
+	}
 
 	var output []dlframework.Features
-	batchSize := int(p.BatchSize())
+	batchSize := p.BatchSize()
 	length := len(predictions) / batchSize
 
 	for ii := 0; ii < batchSize; ii++ {
@@ -337,7 +340,8 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 				feature.ClassificationName(p.features[jj]),
 				feature.Probability(predictions[ii*length+jj].Probability),
 			)
-		}
+    }
+    sort.Sort(dlframework.Features(rprobs))
 		output = append(output, rprobs)
 	}
 	return output, nil
