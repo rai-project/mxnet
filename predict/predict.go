@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/rai-project/tracer"
 
@@ -16,10 +17,11 @@ import (
 	"github.com/rai-project/config"
 	"github.com/rai-project/dlframework"
 	agent "github.com/rai-project/dlframework/framework/agent"
+	"github.com/rai-project/dlframework/framework/feature"
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
-	gomxnet "github.com/rai-project/go-mxnet-predictor/mxnet"
+	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/image"
 	"github.com/rai-project/image/types"
 	"github.com/rai-project/mxnet"
@@ -31,21 +33,25 @@ type ImagePredictor struct {
 	predictor *gomxnet.Predictor
 }
 
-// func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-// 	modelInputs := model.GetInputs()
-// 	if len(modelInputs) != 1 {
-// 		return nil, errors.New("number of inputs not supported")
-// 	}
+func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
+	ctx := context.Background()
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "new_predictor")
+	defer span.Finish()
 
-// 	firstInputType := modelInputs[0].GetType()
-// 	if strings.ToLower(firstInputType) != "image" {
-// 		return nil, errors.New("input type not supported")
-// 	}
+	modelInputs := model.GetInputs()
+	if len(modelInputs) != 1 {
+		return nil, errors.New("number of inputs not supported")
+	}
 
-// 	predictor := new(ImagePredictor)
+	firstInputType := modelInputs[0].GetType()
+	if strings.ToLower(firstInputType) != "image" {
+		return nil, errors.New("input type not supported")
+	}
 
-// 	return predictor.Load(context.Background(), model, opts...)
-// }
+	predictor := new(ImagePredictor)
+
+	return predictor.Load(ctx, model, opts...)
+}
 
 func (p *ImagePredictor) Download(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) error {
 	predOpts := options.New(opts...)
@@ -79,10 +85,6 @@ func (p *ImagePredictor) Download(ctx context.Context, model dlframework.ModelMa
 }
 
 func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-	predOpts := options.New(opts...)
-	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "Load")
-	defer span.Finish()
-
 	framework, err := model.ResolveFramework()
 	if err != nil {
 		return nil, err
@@ -98,7 +100,7 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 			Base: common.Base{
 				Framework: framework,
 				Model:     model,
-				Options:   predOpts,
+				Options:   options.New(opts...),
 			},
 			WorkDir: workDir,
 		},
@@ -209,12 +211,13 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 }
 
 func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
-	span, ctx := tracer.StartSpanFromContext(ctx, tracer.STEP_TRACE, "LoadPredictor")
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "load_predictor")
 	defer span.Finish()
 
 	span.LogFields(
 		olog.String("event", "read graph"),
 	)
+
 	symbol, err := ioutil.ReadFile(p.GetGraphPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
@@ -223,6 +226,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	span.LogFields(
 		olog.String("event", "read weights"),
 	)
+
 	params, err := ioutil.ReadFile(p.GetWeightsPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetWeightsPath())
@@ -231,6 +235,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	span.LogFields(
 		olog.String("event", "read features"),
 	)
+
 	var features []string
 	f, err := os.Open(p.GetFeaturesPath())
 	if err != nil {
@@ -249,14 +254,14 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		return err
 	}
 
-	span.LogFields(
-		olog.String("event", "creating predictor"),
-	)
-
 	opts, err := p.GetPredictionOptions(ctx)
 	if err != nil {
 		return err
 	}
+
+	span.LogFields(
+		olog.String("event", "creating predictor"),
+	)
 
 	pred, err := gomxnet.CreatePredictor(
 		options.WithOptions(opts),
@@ -267,12 +272,13 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	p.predictor = pred
 
 	return nil
 }
 
-func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) ([]dlframework.Features, error) {
+func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...options.Option) error {
 	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
 		// define profiling options
 		poptions := map[string]gomxnet.ProfileMode{
@@ -300,34 +306,40 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 	}
 
 	if err := p.predictor.SetInput("data", input); err != nil {
-		return nil, err
+		return err
 	}
 
 	if err := p.predictor.Forward(); err != nil {
-		return nil, err
+		return err
 	}
 
 	probabilities, err := p.predictor.GetOutput(0)
 	if err != nil {
-		return nil, err
+		return err
 	}
+
+	return nil
+}
+
+// ReadPredictedFeatures ...
+func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframework.Features, error) {
+	predictions := p.predictor.ReadPredictedFeatures(ctx)
 
 	var output []dlframework.Features
 	batchSize := int(p.BatchSize())
-	length := len(probabilities) / batchSize
+	length := len(predictions) / batchSize
 
-	for i := 0; i < batchSize; i++ {
+	for ii := 0; ii < batchSize; ii++ {
 		rprobs := make([]*dlframework.Feature, length)
-		for j := 0; j < length; j++ {
-			rprobs[j] = &dlframework.Feature{
-				Index:       int64(j),
-				Name:        p.features[j],
-				Probability: probabilities[i*length+j],
-			}
+		for jj := 0; jj < length; jj++ {
+			rprobs[jj] = feature.New(
+				feature.ClassificationIndex(int32(jj)),
+				feature.ClassificationName(p.features[jj]),
+				feature.Probability(predictions[ii*length+jj].Probability),
+			)
 		}
 		output = append(output, rprobs)
 	}
-
 	return output, nil
 }
 
