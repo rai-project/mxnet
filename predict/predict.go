@@ -336,7 +336,7 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 		for jj := 0; jj < length; jj++ {
 			rprobs[jj] = feature.New(
 				feature.ClassificationIndex(int32(jj)),
-				feature.ClassificationName(p.features[jj]),
+				feature.ClassificationLabel(p.features[jj]),
 				feature.Probability(predictions[ii*length+jj].Probability),
 			)
 		}
