@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/rai-project/tracer"
@@ -321,9 +322,7 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "read_predicted_features")
 	defer span.Finish()
 
-	predictions := p.predictor.ReadPredictedFeatures()
-
-	probabilities, err :=
+	probabilities, err := p.predictor.ReadPredictedOutput()
 	if err != nil {
 		return nil, err
 	}
@@ -340,8 +339,8 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 				feature.ClassificationName(p.features[jj]),
 				feature.Probability(predictions[ii*length+jj].Probability),
 			)
-    }
-    sort.Sort(dlframework.Features(rprobs))
+		}
+		sort.Sort(dlframework.Features(rprobs))
 		output = append(output, rprobs)
 	}
 	return output, nil
