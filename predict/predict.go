@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"sort"
 	"strings"
 
 	"github.com/rai-project/tracer"
@@ -18,7 +17,6 @@ import (
 	"github.com/rai-project/config"
 	"github.com/rai-project/dlframework"
 	agent "github.com/rai-project/dlframework/framework/agent"
-	"github.com/rai-project/dlframework/framework/feature"
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predict"
 	"github.com/rai-project/downloadmanager"
@@ -30,13 +28,13 @@ import (
 
 type ImagePredictor struct {
 	common.ImagePredictor
-	features  []string
+	labels    []string
 	predictor *gomxnet.Predictor
 }
 
 func New(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 	ctx := context.Background()
-	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "new_predictor")
+	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "new")
 	defer span.Finish()
 
 	modelInputs := model.GetInputs()
@@ -246,7 +244,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		olog.String("event", "read features"),
 	)
 
-	var features []string
+	var labels []string
 	f, err := os.Open(p.GetFeaturesPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetFeaturesPath())
@@ -255,9 +253,9 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
-		features = append(features, line)
+		labels = append(labels, line)
 	}
-	p.features = features
+	p.labels = labels
 
 	opts, err := p.GetPredictionOptions(ctx)
 	if err != nil {
@@ -287,12 +285,11 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 		// define profiling options
 		poptions := map[string]gomxnet.ProfileMode{
 			"profile_all":        gomxnet.ProfileAllEnable,
-			"profile_symbolic":   gomxnet.ProfileSymbolicOperatorsEnable,
-			"profile_imperative": gomxnet.ProfileImperativeOperatorsEnable,
-			"profile_memory":     gomxnet.ProfileMemoryEnable,
-			"profile_api":        gomxnet.ProfileApiEnable,
+			"profile_symbolic":   gomxnet.ProfileSymbolicOperatorsDisable,
+			"profile_imperative": gomxnet.ProfileImperativeOperatorsDisable,
+			"profile_memory":     gomxnet.ProfileMemoryDisable,
+			"profile_api":        gomxnet.ProfileApiDisable,
 			"continuous_dump":    gomxnet.ProfileContiguousDumpDisable,
-			"dump_period":        gomxnet.ProfileDumpPeriod,
 		}
 		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
@@ -322,28 +319,12 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "read_predicted_features")
 	defer span.Finish()
 
-	probabilities, err := p.predictor.ReadPredictedOutput()
+	output, err := p.predictor.ReadPredictedOutput()
 	if err != nil {
 		return nil, err
 	}
 
-	var output []dlframework.Features
-	batchSize := p.BatchSize()
-	length := len(predictions) / batchSize
-
-	for ii := 0; ii < batchSize; ii++ {
-		rprobs := make([]*dlframework.Feature, length)
-		for jj := 0; jj < length; jj++ {
-			rprobs[jj] = feature.New(
-				feature.ClassificationIndex(int32(jj)),
-				feature.ClassificationName(p.features[jj]),
-				feature.Probability(predictions[ii*length+jj].Probability),
-			)
-		}
-		sort.Sort(dlframework.Features(rprobs))
-		output = append(output, rprobs)
-	}
-	return output, nil
+	return p.CreatePredictedFeatures(ctx, output, p.labels)
 }
 
 func (p *ImagePredictor) Reset(ctx context.Context) error {
