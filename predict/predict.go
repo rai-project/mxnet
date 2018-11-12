@@ -70,9 +70,9 @@ func (p *ImagePredictor) Download(ctx context.Context, model dlframework.ModelMa
 			Base: common.Base{
 				Framework: framework,
 				Model:     model,
+				WorkDir:   workDir,
 				Options:   predOpts,
 			},
-			WorkDir: workDir,
 		},
 	}
 
@@ -99,15 +99,15 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 			Base: common.Base{
 				Framework: framework,
 				Model:     model,
+				WorkDir:   workDir,
 				Options:   options.New(opts...),
 			},
-			WorkDir: workDir,
 		},
 	}
 
-	imageDims, err := p.GetImageDimensions()
+	imageDims, err := ip.GetImageDimensions()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	ip.Options.Append(
@@ -266,7 +266,8 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		olog.String("event", "creating predictor"),
 	)
 
-	pred, err := gomxnet.CreatePredictor(
+	pred, err := gomxnet.New(
+		ctx,
 		options.WithOptions(opts),
 		options.Symbol(symbol),
 		options.Weights(params),
@@ -289,7 +290,7 @@ func (p *ImagePredictor) Predict(ctx context.Context, data [][]float32, opts ...
 			"profile_imperative": gomxnet.ProfileImperativeOperatorsDisable,
 			"profile_memory":     gomxnet.ProfileMemoryDisable,
 			"profile_api":        gomxnet.ProfileApiDisable,
-			"continuous_dump":    gomxnet.ProfileContiguousDumpDisable,
+			"continuous_dump":    gomxnet.ProfileContinuousDumpDisable,
 		}
 		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
 			profile.Start()
@@ -319,7 +320,7 @@ func (p *ImagePredictor) ReadPredictedFeatures(ctx context.Context) ([]dlframewo
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "read_predicted_features")
 	defer span.Finish()
 
-	output, err := p.predictor.ReadPredictedOutput()
+	output, err := p.predictor.ReadPredictionOutput(ctx)
 	if err != nil {
 		return nil, err
 	}

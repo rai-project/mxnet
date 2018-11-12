@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/awalterschulze/gographviz"
-	"gopkg.in/fatih/set.v0"
+	"github.com/fatih/set"
 )
 
 // color map
