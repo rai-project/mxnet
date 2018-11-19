@@ -6,7 +6,7 @@ matrix:
     - go: tip
   allow_failures:
     - go: tip
-dist: trusty
+dist: xenial
 sudo: required
 services:
   - docker
