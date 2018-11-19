@@ -13,9 +13,9 @@ services:
 addons:
   apt:
     sources:
-    - sourceline: ppa:masterminds/glide
+      - sourceline: ppa:masterminds/glide
     packages:
-    - glide
+      - glide
 before_install:
   - docker pull carml/go-mxnet:amd64-gpu-latest
   - docker run -d carml/go-mxnet:amd64-gpu-latest /bin/sh -c "ls -l;"
@@ -23,10 +23,8 @@ before_install:
   - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
 install:
   - dep ensure -v
-  - rm -fr vendor/github.com/Sirupsen
-  - find vendor -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} +
   - go build
 script:
   - echo "Skip tests..."
 after_script:
-  - go test -race -v $(glide novendor)
+  - go test -race -v .

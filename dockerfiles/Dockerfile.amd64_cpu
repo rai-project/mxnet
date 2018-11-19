@@ -23,9 +23,7 @@ ENV PKG github.com/rai-project/mxnet
 WORKDIR $GOPATH/src/$PKG
 
 RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
-    dep ensure && \
-    rm -fr vendor/github.com/Sirupsen && \
-    find vendor -type f -exec sed -i 's/Sirupsen/sirupsen/g' {} + && \
+    dep ensure -v && \
     go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
     go install && \
     rm -fr vendor
