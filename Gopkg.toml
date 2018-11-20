@@ -58,7 +58,7 @@
   name = "github.com/rai-project/config"
 
 [[constraint]]
-  revision = "eb0b9937d67b6bf363b1d177284d6c050e698821"
+  branch = "master"
   name = "github.com/rai-project/dlframework"
 
 [[constraint]]
@@ -67,7 +67,7 @@
 
 [[constraint]]
   name = "github.com/rai-project/go-mxnet-predictor"
-  branch = "master"
+  version = "0.4.0"
 
 [[constraint]]
   branch = "master"
@@ -78,8 +78,8 @@
   name = "github.com/rai-project/logger"
 
 [[constraint]]
-  branch = "master"
   name = "github.com/rai-project/tracer"
+  version = "0.2.0"
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
