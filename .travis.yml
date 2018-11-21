@@ -5,8 +5,8 @@ services:
   - docker
 env:
   global:
-    - TRAVIS_REPO_OWNER=${TRAVIS_REPO_SLUG#*/}
-    - TRAVIS_REPO_NAME=${TRAVIS_REPO_SLUG%/*}
+    - TRAVIS_REPO_NAME=${TRAVIS_REPO_SLUG#*/}
+    - TRAVIS_REPO_OWNER=${TRAVIS_REPO_SLUG%/*}
 before_install:
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 script:
