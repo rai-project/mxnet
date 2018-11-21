@@ -1334,7 +1334,7 @@
   name = "github.com/rai-project/go-mxnet"
   packages = ["mxnet"]
   pruneopts = "T"
-  revision = "434144b09f65d14d342c44adefb139d1a3e7760e"
+  revision = "0f4823d4f8abe4010e5c0c394dc5be427478d9f0"
 
 [[projects]]
   branch = "master"

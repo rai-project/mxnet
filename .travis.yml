@@ -13,6 +13,6 @@ script:
   - cd ${TRAVIS_BUILD_DIR}/dockerfiles
   - make build
   - make push
-  - cd ${TRAVIS_BUILD_DIR}/mxnet-agent/dockerfiles
+  - cd ${TRAVIS_BUILD_DIR}/${TRAVIS_REPO_NAME}-agent/dockerfiles
   - make build
   - make push
