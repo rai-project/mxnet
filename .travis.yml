@@ -1,30 +1,18 @@
 language: go
-matrix:
-  include:
-    - go: 1.10.x
-    - go: 1.11.x
-    - go: tip
-  allow_failures:
-    - go: tip
 dist: xenial
 sudo: required
 services:
   - docker
-addons:
-  apt:
-    sources:
-      - sourceline: ppa:masterminds/glide
-    packages:
-      - glide
+env:
+  global:
+    - TRAVIS_REPO_OWNER=${TRAVIS_REPO_SLUG#*/}
+    - TRAVIS_REPO_NAME=${TRAVIS_REPO_SLUG%/*}
 before_install:
-  - docker pull carml/go-mxnet:amd64-gpu-latest
-  - docker run -d carml/go-mxnet:amd64-gpu-latest /bin/sh -c "ls -l;"
-  - docker ps -a
-  - curl https://raw.githubusercontent.com/golang/dep/master/install.sh | sh
-install:
-  - dep ensure -v
-  - go build
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
 script:
-  - echo "Skip tests..."
-after_script:
-  - go test -race -v .
+  - cd ${TRAVIS_BUILD_DIR}/dockerfiles
+  - make build
+  - make push
+  - cd ${TRAVIS_BUILD_DIR}/mxnet-agent/dockerfiles
+  - make build
+  - make push

@@ -7,15 +7,15 @@ ARG BUILD_DATE
 ARG VCS_REF
 ARG VCS_URL
 ARG VERSION
-LABEL org.mxnet.agent.build-date=$BUILD_DATE \
-      org.mxnet.agent.name="mxnet agent" \
-      org.mxnet.agent.description="" \
-      org.mxnet.agent.url="https://www.carml.org/" \
-      org.mxnet.agent.vcs-ref=$VCS_REF \
-      org.mxnet.agent.vcs-url=$VCS_URL \
-      org.mxnet.agent.vendor="CarML" \
-      org.mxnet.agent.version=$VERSION \
-      org.mxnet.agent.schema-version="1.0"
+LABEL org.mlmodelscope.mxnet.agent.build-date=$BUILD_DATE \
+      org.mlmodelscope.mxnet.agent.name="mxnet agent" \
+      org.mlmodelscope.mxnet.agent.description="" \
+      org.mlmodelscope.mxnet.agent.url="https://www.mlmodelscope.org/" \
+      org.mlmodelscope.mxnet.agent.vcs-ref=$VCS_REF \
+      org.mlmodelscope.mxnet.agent.vcs-url=$VCS_URL \
+      org.mlmodelscope.mxnet.agent.vendor="MLModelScope" \
+      org.mlmodelscope.mxnet.agent.version=$VERSION \
+      org.mlmodelscope.mxnet.agent.schema-version="1.0"
 
 
 # Get Go bindings
@@ -24,6 +24,6 @@ WORKDIR $GOPATH/src/$PKG
 
 RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
     dep ensure -v && \
-    go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
-    go install && \
+    go build -tags=nogpu -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
+    go install -tags=nogpu && \
     rm -fr vendor
