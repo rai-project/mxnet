@@ -1,18 +1,28 @@
-language: go
 dist: xenial
 sudo: required
 services:
   - docker
-env:
-  global:
-    - TRAVIS_REPO_NAME=${TRAVIS_REPO_SLUG#*/}
-    - TRAVIS_REPO_OWNER=${TRAVIS_REPO_SLUG%/*}
-before_install:
-  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
-script:
-  - cd ${TRAVIS_BUILD_DIR}/dockerfiles
-  - make build
-  - make push
-  - cd ${TRAVIS_BUILD_DIR}/${TRAVIS_REPO_NAME}-agent/dockerfiles
-  - make build
-  - make push
+jobs:
+  include:
+    - stage: build/push docker cpu
+      script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - cd ${TRAVIS_BUILD_DIR}/dockerfiles
+        - travis_wait 50 make docker_build_cpu
+        - travis_retry 50 make docker_push_cpu
+        - cd ${TRAVIS_BUILD_DIR}/${TRAVIS_REPO_NAME}-agent/dockerfiles
+        - travis_wait 50 make docker_build_cpu
+        - travis_retry 50 make docker_push_cpu
+    - stage: build/push docker gpu
+      script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+        - cd ${TRAVIS_BUILD_DIR}/dockerfiles
+        - travis_wait 50 make docker_build_gpu
+        - travis_retry 50 make docker_push_gpu
+        - cd ${TRAVIS_BUILD_DIR}/${TRAVIS_REPO_NAME}-agent/dockerfiles
+        - travis_wait 50 make docker_build_gpu
+        - travis_retry 50 make docker_push_gpu
+    - stage: update microbadger
+      script:
+        - curl -X POST https://hooks.microbadger.com/images/carml/mxnet/vdQvZQSNuiSvR9dzwryuJbvyfwc=
+        - curl -X POST https://hooks.microbadger.com/images/carml/mxnet-agent/TDLR5KTXvgfzyKLfKBn71v2hmjE=

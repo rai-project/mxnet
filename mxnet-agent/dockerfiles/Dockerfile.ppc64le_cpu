@@ -22,8 +22,8 @@ LABEL org.mlmodelscope.mxnet.agent.build-date=$BUILD_DATE \
 ENV PKG github.com/rai-project/mxnet
 WORKDIR $GOPATH/src/$PKG
 
-RUN git clone --depth=1 --branch=master https://${PKG}.git . && \
-    glide install && \
+RUN git clone --depth=1 https://${PKG}.git . && \
+    dep ensure -v && \
     go build -tags=nogpu -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
     cd mxnet-agent && \
     go install -tags=nogpu && \
