@@ -128,7 +128,7 @@
   name = "github.com/apache/thrift"
   packages = ["lib/go/thrift"]
   pruneopts = "T"
-  revision = "fc52c3cceed1070d8c618d18a1abd0a437cf0295"
+  revision = "2c69b5a01e589c19855a00b68596d0564bb2bb5b"
 
 [[projects]]
   branch = "master"
@@ -195,8 +195,8 @@
     "service/sts",
   ]
   pruneopts = "T"
-  revision = "66af558c91f83a793b4a0101f70742062982f611"
-  version = "v1.15.81"
+  revision = "ceab7b7ac6f535d1397f124620720b5145f1ad59"
+  version = "v1.15.88"
 
 [[projects]]
   branch = "master"
@@ -247,12 +247,12 @@
   revision = "ee74d2f83d82cd1d2e92ed3ec3dbaf162ca5ece5"
 
 [[projects]]
-  digest = "1:2209584c0f7c9b68c23374e659357ab546e1b70eec2761f03280f69a8fd23d77"
+  digest = "0:"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
   pruneopts = "T"
-  revision = "2ea60e5f094469f9e65adb9cd103795b73ae743e"
-  version = "v2.0.0"
+  revision = "62661b46c4093e2c1f38d943e663db1a29873e80"
+  version = "v2.1.0"
 
 [[projects]]
   branch = "master"
@@ -344,7 +344,7 @@
     "reference",
   ]
   pruneopts = "T"
-  revision = "93e082742a009850ac46962150b2f652a822c5ff"
+  revision = "d9e12182359e0893efd7546d4b764f6c24e3118c"
 
 [[projects]]
   branch = "master"
@@ -387,7 +387,7 @@
     "pkg/term/windows",
   ]
   pruneopts = "T"
-  revision = "0b7cb16dde4a20d024c7be59801d63bcfd18611b"
+  revision = "baab736a364959f10a5ef86f0cd8a8e44bdcc576"
 
 [[projects]]
   branch = "master"
@@ -627,7 +627,7 @@
     "ptypes/timestamp",
   ]
   pruneopts = "T"
-  revision = "882cf97a83ad205fd22af574246a3bc647d7a7d2"
+  revision = "1d3f30b51784bec5aad268e59fd3c2fc1c2fe73f"
 
 [[projects]]
   branch = "master"
@@ -1093,7 +1093,7 @@
     "libcontainer/user",
   ]
   pruneopts = "T"
-  revision = "9397a6f62eb4252f01d98502105c49cfcd9feafe"
+  revision = "4932620b6237ed2a91aa5b5ca8cca6a73c10311b"
 
 [[projects]]
   branch = "master"
@@ -1246,7 +1246,7 @@
     "mongodb",
   ]
   pruneopts = "T"
-  revision = "99321098fe1086b20a48bb5eead61377c7eb3a06"
+  revision = "460c9cf6ee9ff85b91220358648023379ccd7bf7"
 
 [[projects]]
   branch = "master"
@@ -1276,7 +1276,7 @@
     "steps",
   ]
   pruneopts = "T"
-  revision = "de195470e9ede9ffa8aaed1c555e26d1a635b073"
+  revision = "53b90111dea4992b7f9eaee207d17b902ed11f26"
 
 [[projects]]
   branch = "master"
@@ -1307,7 +1307,7 @@
     "eventflow",
   ]
   pruneopts = "T"
-  revision = "8174d1d627ca130a1a4df4dfee63490070aa816e"
+  revision = "27a8cfb730bc4cecd9f31961a159acf34f0281d3"
 
 [[projects]]
   branch = "master"
@@ -1334,7 +1334,7 @@
   name = "github.com/rai-project/go-mxnet"
   packages = ["mxnet"]
   pruneopts = "T"
-  revision = "70d37f1074f88574ad60d964fda359229758e7f3"
+  revision = "a3266c76e081994f3a238e7c117cc581d30bd910"
 
 [[projects]]
   branch = "master"
@@ -1529,7 +1529,7 @@
     "zipkin",
   ]
   pruneopts = "T"
-  revision = "805456221d478bcbf46463c8de6cf009dadbd89a"
+  revision = "41b5c08e8b8efd04718204bf1ba6b83a15959e13"
 
 [[projects]]
   branch = "master"
@@ -1680,7 +1680,7 @@
     "doc",
   ]
   pruneopts = "T"
-  revision = "fe5e611709b0c57fa4a89136deaa8e1d4004d053"
+  revision = "d2d81d9a96e23f0255397222bb0b4e3165e492dc"
 
 [[projects]]
   branch = "master"
@@ -1744,8 +1744,8 @@
     "model/json",
   ]
   pruneopts = "T"
-  revision = "e24277e5edb8d4815f3dc06e70afbcaedc719534"
-  version = "v1.8.1"
+  revision = "ec5d79f09df053232320627be7e6061c41cd1fb0"
+  version = "v1.8.2"
 
 [[projects]]
   digest = "0:"
@@ -1964,7 +1964,7 @@
     "ssh/terminal",
   ]
   pruneopts = "T"
-  revision = "3d3f9f413869b949e48070b5bc593aa22cc2b8f2"
+  revision = "eb0de9b17e854e9b1ccd9963efafc79862359959"
 
 [[projects]]
   branch = "master"
@@ -1995,7 +1995,7 @@
     "websocket",
   ]
   pruneopts = "T"
-  revision = "adae6a3d119ae4890b46832a2e88a95adc62b8e7"
+  revision = "fae4c4e3ad76c295c3d6d259f898136b4bf833a8"
 
 [[projects]]
   branch = "master"
@@ -2009,7 +2009,7 @@
     "jwt",
   ]
   pruneopts = "T"
-  revision = "8f65e3013ebad444f13bc19536f7865efc793816"
+  revision = "28207608b83849a028d4f12e46533a6b6894ecaf"
 
 [[projects]]
   branch = "master"
@@ -2031,7 +2031,7 @@
     "windows",
   ]
   pruneopts = "T"
-  revision = "62eef0e2fa9b2c385f7b2778e763486da6880d37"
+  revision = "4ed8d59d0b35e1e29334a206d1b3f38b1e5dfb31"
 
 [[projects]]
   digest = "1:6164911cb5e94e8d8d5131d646613ff82c14f5a8ce869de2f6d80d9889df8c5a"
@@ -2092,7 +2092,7 @@
     "mat",
   ]
   pruneopts = "T"
-  revision = "dc5eba8a134ad82c1183e09977e5fee15638cc2b"
+  revision = "b53e0d9ab06a7202ea1f1b9cdc6da4a0ae6fcc1e"
 
 [[projects]]
   branch = "master"
@@ -2106,7 +2106,7 @@
     "logging/v2",
   ]
   pruneopts = "T"
-  revision = "faade3cbb06a30202f2da53a8a5e3c4afe60b0c2"
+  revision = "af4fc4062c262223ddc2d92f5f35a93690db383a"
 
 [[projects]]
   digest = "0:"
@@ -2136,7 +2136,7 @@
     "googleapis/rpc/status",
   ]
   pruneopts = "T"
-  revision = "b5d43981345bdb2c233eb4bf3277847b48c6fdc6"
+  revision = "31ac5d88444a9e7ad18077db9a165d793ad06a2e"
 
 [[projects]]
   digest = "0:"
@@ -2262,12 +2262,12 @@
   revision = "9856a29383ce1c59f308dd1cf0363a79b5bef6b5"
 
 [[projects]]
-  digest = "1:342378ac4dcb378a5448dd723f0784ae519383532f5e70ade24132c4c8693202"
+  digest = "0:"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
   pruneopts = "T"
-  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
-  version = "v2.2.1"
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [[projects]]
   digest = "0:"
