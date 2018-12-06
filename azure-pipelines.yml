@@ -1,7 +1,8 @@
 jobs:
   - job: CPU
+    timeoutInMinutes: 0
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: "Ubuntu 16.04"
     steps:
       - bash: |
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
@@ -9,8 +10,9 @@ jobs:
           make docker_build_cpu
           ./push_cpu.sh
   - job: GPU
+    timeoutInMinutes: 0
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: "Ubuntu 16.04"
     steps:
       - bash: |
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
@@ -18,10 +20,9 @@ jobs:
           make docker_build_gpu
           ./push_gpu.sh
   - job: CPU_Agent
-    dependsOn:
-      - CPU
+    timeoutInMinutes: 0
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: "Ubuntu 16.04"
     steps:
       - bash: |
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
@@ -29,10 +30,9 @@ jobs:
           make docker_build_cpu
           ./push_cpu.sh
   - job: GPU_Agent
-    dependsOn:
-      - GPU
+    timeoutInMinutes: 0
     pool:
-      vmImage: 'Ubuntu 16.04'
+      vmImage: "Ubuntu 16.04"
     steps:
       - bash: |
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
@@ -44,10 +44,10 @@ jobs:
       - CPU
       - GPU
     steps:
-      - script: 'curl -X POST https://hooks.microbadger.com/images/carml/mxnet/vdQvZQSNuiSvR9dzwryuJbvyfwc='
+      - script: "curl -X POST https://hooks.microbadger.com/images/carml/mxnet/vdQvZQSNuiSvR9dzwryuJbvyfwc="
   - job: Update_Microbadger_Agent
     dependsOn:
       - CPU_Agent
       - GPU_Agent
     steps:
-      - script: 'curl -X POST https://hooks.microbadger.com/images/carml/mxnet-agent/TDLR5KTXvgfzyKLfKBn71v2hmjE='
+      - script: "curl -X POST https://hooks.microbadger.com/images/carml/mxnet-agent/TDLR5KTXvgfzyKLfKBn71v2hmjE="

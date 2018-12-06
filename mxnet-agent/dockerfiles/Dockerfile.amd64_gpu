@@ -23,7 +23,7 @@ ENV PKG github.com/rai-project/mxnet
 WORKDIR $GOPATH/src/$PKG
 
 RUN git clone --depth=1 https://${PKG}.git . && \
-    dep ensure -v && \
+    dep ensure -vendor-only -v && \
     go build -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
     cd mxnet-agent && \
     go install && \
