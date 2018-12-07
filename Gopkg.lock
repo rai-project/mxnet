@@ -128,7 +128,7 @@
   name = "github.com/apache/thrift"
   packages = ["lib/go/thrift"]
   pruneopts = "T"
-  revision = "17a9cffabb746f7dc481a5af9d8a1aeeda537fb6"
+  revision = "208a048dc440036bd5304a6fd16e32fda33b4600"
 
 [[projects]]
   branch = "master"
@@ -196,8 +196,8 @@
     "service/sts",
   ]
   pruneopts = "T"
-  revision = "130ebb7dc1d6b5a940198b47642fc8b20936a65d"
-  version = "v1.16.1"
+  revision = "c4e0e593d5f18b478f17ff0e86b56d41a70ced2d"
+  version = "v1.16.2"
 
 [[projects]]
   branch = "master"
@@ -840,11 +840,11 @@
   revision = "1a4a6f06a1c643c8fbd339bd61d980960627d09e"
 
 [[projects]]
-  digest = "1:eebce3c1fad57b604c517ea649edd5dcbd2530f0f7e62ac0b7b232f2eacbcc88"
+  digest = "0:"
   name = "github.com/jmespath/go-jmespath"
   packages = ["."]
   pruneopts = "T"
-  revision = "0b12d6b5"
+  revision = "c2b33e84"
 
 [[projects]]
   digest = "0:"
@@ -1277,7 +1277,7 @@
     "steps",
   ]
   pruneopts = "T"
-  revision = "b99dac275a43d1a2fbe56e5a9b4d33b07c41f7ac"
+  revision = "1a157016b40dfdedefcfee8b52573f62e27e45e8"
 
 [[projects]]
   branch = "master"
