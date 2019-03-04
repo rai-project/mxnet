@@ -12,7 +12,6 @@
 // builtin_models/Inception-v3.yml
 // builtin_models/Inception-v4.yml
 // builtin_models/InceptionBN-21K.yml
-// builtin_models/MSGNet21.yml
 // builtin_models/MobileNet-v2-1.0.yml
 // builtin_models/ResNeXt101-32x4d.yml
 // builtin_models/ResNeXt101.yml
@@ -350,26 +349,6 @@ func inceptionbn21kYml() (*asset, error) {
 	}
 
 	info := bindataFileInfo{name: "InceptionBN-21K.yml", size: 2380, mode: os.FileMode(420), modTime: time.Unix(1538683310, 0)}
-	a := &asset{bytes: bytes, info: info}
-	return a, nil
-}
-
-var _msgnet21Yml = "\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x01\x00\x00\xff\xff\x00\x00\x00\x00\x00\x00\x00\x00"
-
-func msgnet21YmlBytes() ([]byte, error) {
-	return bindataRead(
-		_msgnet21Yml,
-		"MSGNet21.yml",
-	)
-}
-
-func msgnet21Yml() (*asset, error) {
-	bytes, err := msgnet21YmlBytes()
-	if err != nil {
-		return nil, err
-	}
-
-	info := bindataFileInfo{name: "MSGNet21.yml", size: 0, mode: os.FileMode(420), modTime: time.Unix(1542645291, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -1118,7 +1097,6 @@ var _bindata = map[string]func() (*asset, error){
 	"Inception-v3.yml": inceptionV3Yml,
 	"Inception-v4.yml": inceptionV4Yml,
 	"InceptionBN-21K.yml": inceptionbn21kYml,
-	"MSGNet21.yml": msgnet21Yml,
 	"MobileNet-v2-1.0.yml": mobilenetV210Yml,
 	"ResNeXt101-32x4d.yml": resnext10132x4dYml,
 	"ResNeXt101.yml": resnext101Yml,
@@ -1207,7 +1185,6 @@ var _bintree = &bintree{nil, map[string]*bintree{
 	"Inception-v3.yml": &bintree{inceptionV3Yml, map[string]*bintree{}},
 	"Inception-v4.yml": &bintree{inceptionV4Yml, map[string]*bintree{}},
 	"InceptionBN-21K.yml": &bintree{inceptionbn21kYml, map[string]*bintree{}},
-	"MSGNet21.yml": &bintree{msgnet21Yml, map[string]*bintree{}},
 	"MobileNet-v2-1.0.yml": &bintree{mobilenetV210Yml, map[string]*bintree{}},
 	"ResNeXt101-32x4d.yml": &bintree{resnext10132x4dYml, map[string]*bintree{}},
 	"ResNeXt101.yml": &bintree{resnext101Yml, map[string]*bintree{}},
