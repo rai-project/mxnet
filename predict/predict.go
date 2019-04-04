@@ -18,7 +18,7 @@ import (
 	"github.com/rai-project/dlframework"
 	agent "github.com/rai-project/dlframework/framework/agent"
 	"github.com/rai-project/dlframework/framework/options"
-	common "github.com/rai-project/dlframework/framework/predict"
+	common "github.com/rai-project/dlframework/framework/predictor"
 	"github.com/rai-project/downloadmanager"
 	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/image"
