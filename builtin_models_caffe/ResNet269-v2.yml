@@ -1,0 +1,55 @@
+name: ResNet269 # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: 1.4.0 # framework version contraint
+version: 2.0 # version information in semantic version format
+container: # containers used to perform model prediction
+           # multiple platforms can be specified
+  amd64:
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
+description: >
+  A Residual learning framework to ease the training of networks that are substantially deeper than those used previously.
+  We explicitly reformulate the layers as learning residual functions with reference to the layer inputs, instead of learning unreferenced functions.
+  We provide comprehensive empirical evidence showing that these residual networks are easier to optimize, and can gain accuracy from considerably increased depth.
+  On the ImageNet dataset we evaluate residual nets with a depth of up to 152 layers---8x deeper than VGG nets but still having lower complexity.
+  An ensemble of these residual nets achieves 3.57% error on the ImageNet test set. This result won the 1st place on the ILSVRC 2015 classification task.
+references: # references to papers / websites / etc.. describing the model
+  - https://github.com/soeaver/caffe-model/tree/master/cls
+  - https://github.com/craftGBD/craftGBD
+  - https://arxiv.org/abs/1512.03385
+# license of the model
+license: unrestricted
+# inputs to the model
+inputs:
+  # first input type for the model
+  - type: image
+    # description of the first input
+    description: the input image
+    parameters: # type parameters
+      dimensions: [3, 224, 224]
+      mean: [122.772, 115.947, 102.98]
+output:
+  # the type of the output
+  type: feature
+  # a description of the output parameter
+  description: the output label
+  parameters:
+    # type parameters
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
+model: # specifies model graph and weights resources
+  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/resnet269-v2/resnet269-v2-symbol.json
+  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/resnet269-v2/resnet269-v2-0000.params
+  is_archive: false # if set, then the base_url is a url to an archive
+                    # the graph_path and weights_path then denote the
+                    # file names of the graph and weights within the archive
+  graph_checksum: 039f90aa515fe031606925381a99bd9a
+  weights_checksum: a84738458fc34a7e356a2c91d8adcd55
+attributes: # extra network attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: ImageNet # dataset used to for training
+  manifest_author: abduld

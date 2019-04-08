@@ -1,0 +1,52 @@
+name: ShuffleNet_v1.3_ONNX # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: 1.4.0 # framework version contraint
+version: 1.0 # version information in semantic version format
+container: # containers used to perform model prediction
+  # multiple platforms can be specified
+  amd64:
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
+description: >
+  Converted from ShuffleNet v1.3 ONNX model
+references: # references to papers / websites / etc.. describing the model
+  - https://github.com/onnx/models/tree/master/shufflenet
+  - https://arxiv.org/abs/1707.01083
+# license of the model
+license: unrestricted
+# inputs to the model
+inputs:
+  # first input type for the model
+  - type: image
+    # description of the first input
+    description: the input image
+    parameters: # type parameters
+      dimensions: [3, 224, 224]
+      scale: 256
+output:
+  # the type of the output
+  type: feature
+  # a description of the output parameter
+  description: the output label
+  parameters:
+    # type parameters
+    features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
+model: # specifies model graph and weights resources
+  base_url: https://s3.amazonaws.com/store.carml.org/models/mxnet/shufflenet_v1.3/shufflenet_v1.3_onnx/
+  graph_path: shufflenet_symbol.json
+  weights_path: shufflenet.params
+  is_archive:
+    false # if set, then the base_url is a url to an archive
+    # the graph_path and weights_path then denote the
+    # file names of the graph and weights within the archive
+  graph_checksum: 2d4201b009cdd83888c8db7b698d3979
+  weights_checksum: dab508199114f1ec18d6114f40f5edaf
+attributes: # extra network attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: ImageNet # dataset used to for training
+  manifest_author: cheng

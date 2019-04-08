@@ -1,0 +1,46 @@
+name: SSD_MobileNet_v1_COCO # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: 1.4.0 # framework version contraint
+version: 1.0 # version information in semantic version format
+container: # containers used to perform model evaluation
+  amd64:
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
+description: >
+  MXNet Object Detection model, which is trained on the COCO (Common Objects in Context) dataset.
+  Use ssd_512_mobilenet1.0_coco from GluonCV model zoo.
+references: # references to papers / websites / etc.. describing the model
+  - https://gluon-cv.mxnet.io/model_zoo/detection.html
+license: Apache License, Version 2.0 # license of the model
+inputs: # model inputs
+  - type: image # first input modality
+    description: the input image # description of the first input
+    parameters:
+      element_type: float32
+      input_layer: 'image_tensor'
+output:
+  type: boundingbox
+  description: the output bounding box # a description of the output parameter
+  parameters:
+    element_type: float32
+    boxes_layer: 'detection_boxes'
+    probabilities_layer: 'detection_scores'
+    classes_layer: 'detection_classes'
+    features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/labels.txt
+    features_checksum: 4418c85d01e6c82ff6849b8239759438
+model: # specifies model graph and weights sources
+  base_url:
+  graph_path: https://s3.amazonaws.com/store.carml.org/models/tensorflow/models/ssd_mobilenet_v1_coco_2018_01_28/frozen_inference_graph.pb
+  is_archive:
+    false # if true, then the base_url is a url to an archive
+    # the graph_path and weights_path then denote the
+    # file names of the graph and weights within the archive
+  graph_checksum: c9df908a779062ce00abe8f98e4a3eb1
+attributes: # extra model attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: COCO # dataset used to for training
+  manifest_author: Cheng Li

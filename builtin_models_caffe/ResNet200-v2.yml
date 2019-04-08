@@ -1,0 +1,53 @@
+name: ResNet200 # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: 1.4.0 # framework version contraint
+version: 2.0 # version information in semantic version format
+container: # containers used to perform model prediction
+           # multiple platforms can be specified
+  amd64:
+    gpu: raiproject/carml-mxnet:amd64-cpu
+    cpu: raiproject/carml-mxnet:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-mxnet:ppc64le-gpu
+    gpu: raiproject/carml-mxnet:ppc64le-gpu
+description: >
+  An image-classification network built of layers that learn residual functions w.r.t layer inputs.
+  This network consists of 200 layers.
+  It is able to achieve 22.14% Top-1 Error and 6.16% Top-5 Error on ILSVRC2012-Validation Set.
+references: # references to papers / websites / etc.. describing the model
+  - https://github.com/tornadomeet/ResNet
+  - https://github.com/KaimingHe/deep-residual-networks
+  - https://arxiv.org/abs/1512.03385
+# license of the model
+license: MIT
+# inputs to the model
+inputs:
+  # first input type for the model
+  - type: image
+    # description of the first input
+    description: the input image
+    parameters: # type parameters
+      dimensions: [3, 224, 224]
+output:
+  # the type of the output
+  type: feature
+  # a description of the output parameter
+  description: the output label
+  parameters:
+    # type parameters
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
+model: # specifies model graph and weights resources
+  base_url: http://data.dmlc.ml/models/imagenet/resnet/200-layers/
+  graph_path: resnet-200-symbol.json
+  weights_path: resnet-200-0000.params
+  is_archive: false # if set, then the base_url is a url to an archive
+                    # the graph_path and weights_path then denote the
+                    # file names of the graph and weights within the archive
+  graph_checksum: 9ad2c70151b0022a4c9a8931f7f55093
+  weights_checksum: f9027e4d7f170d66daa3d540c2b92709
+attributes: # extra network attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: ImageNet # dataset used to for training
+  manifest_author: abduld

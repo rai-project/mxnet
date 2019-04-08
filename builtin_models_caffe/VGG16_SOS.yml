@@ -1,0 +1,52 @@
+name: VGG16_SOS # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: 1.4.0 # framework version contraint
+version: 1.0 # version information in semantic version format
+container: # containers used to perform model prediction
+           # multiple platforms can be specified
+  amd64:
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
+description: >
+  VGG16 finetuned on the Salient Object Subitizing (SOS) dataset, which is described in the CVPR'15 paper: "Salient Object Subitizing"
+references: # references to papers / websites / etc.. describing the model
+  - https://gist.github.com/jimmie33/27c1c0a7736ba66c2395
+  - http://cs-people.bu.edu/jmzhang/sos.html
+  - https://github.com/BVLC/caffe/wiki/Model-Zoo
+  - https://arxiv.org/abs/1409.1556
+# license of the model
+license: CC BY-NC 4.0
+# inputs to the model
+inputs:
+  # first input type for the model
+  - type: image
+    # description of the first input
+    description: the input image
+    parameters: # type parameters
+      dimensions: [3, 224, 224]
+      mean: [123.68, 116.779, 103.939]
+output:
+  # the type of the output
+  type: feature
+  # a description of the output parameter
+  description: the output label
+  parameters:
+    # type parameters
+    features_url: http://s3.amazonaws.com/store.carml.org/models/caffe/vgg16_sos/%20salient_object_subitizing.txt
+    features_checksum: da8e6ab825a44a900f1654f09f51d71f
+model: # specifies model graph and weights resources
+  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/vgg16_sos/vgg16_sos-symbol.json
+  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/vgg16_sos/vgg16_sos-0000.params
+  is_archive: false # if set, then the base_url is a url to an archive
+                    # the graph_path and weights_path then denote the
+                    # file names of the graph and weights within the archive
+  graph_checksum: c37251f6d6f13c497f32f253c2fd6d88
+  weights_checksum: 6a5212a37098787dcce46cde90136a7a
+attributes: # extra network attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: The SOS Dataset # dataset used to for training
+  manifest_author: abduld
