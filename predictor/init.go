@@ -1,4 +1,4 @@
-package predict
+package predictor
 
 import (
 	"github.com/rai-project/config"

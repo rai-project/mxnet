@@ -1,9 +1,8 @@
 package predictor
 
 import (
-	"bytes"
 	"context"
-	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -12,18 +11,16 @@ import (
 	"github.com/rai-project/dlframework/framework/agent"
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predictor"
+	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/tensorflow"
 	"github.com/rai-project/tracer"
-  gotensor "gorgonia.org/tensor"
-  gomxnet "github.com/rai-project/go-mxnet/mxnet"
-
+	gotensor "gorgonia.org/tensor"
 )
 
 type ImageClassificationPredictor struct {
 	*ImagePredictor
-	inputLayer         string
-	probabilitiesLayer string
-	probabilities      interface{}
+	inputLayer              string
+	probabilitiesLayerIndex int
 }
 
 func NewImageClassificationPredictor(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
@@ -45,6 +42,7 @@ func NewImageClassificationPredictor(model dlframework.ModelManifest, opts ...op
 }
 
 func (self *ImageClassificationPredictor) Load(ctx context.Context, modelManifest dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
+
 	pred, err := self.ImagePredictor.Load(ctx, modelManifest, opts...)
 	if err != nil {
 		return nil, err
@@ -54,24 +52,22 @@ func (self *ImageClassificationPredictor) Load(ctx context.Context, modelManifes
 		ImagePredictor: pred,
 	}
 
-	model, err := ioutil.ReadFile(p.GetGraphPath())
-	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
-	}
-	modelReader := bytes.NewReader(model)
+	// symbol, err := ioutil.ReadFile(p.GetGraphPath())
+	// if err != nil {
+	// 	return nil, errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
+	// }
 
-  self.Options.Append(
-		options.InputNode(ip.GetInputLayerName(DefaultInputLayerName), imageDims),
-  )
-  
-	p.inputLayer, err = p.GetInputLayerName(modelReader, "input_layer")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get the input layer name")
-	}
-	p.probabilitiesLayer, err = p.GetOutputLayerName(modelReader, "probabilities_layer")
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to get the probabilities layer name")
-	}
+	// params, err := ioutil.ReadFile(p.GetWeightsPath())
+	// if err != nil {
+	// 	return nil, errors.Wrapf(err, "cannot read %s", p.GetWeightsPath())
+	// }
+
+	// p.options.SetGraph(symbol)
+	// p.options.SetGraph(symbol)
+	// p.probabilitiesLayerIndex, err = p.GetOutputLayerIndex("probabilities_layer")
+	// if err != nil {
+	// 	return nil, errors.Wrap(err, "failed to get the probabilities layer name")
+	// }
 
 	return p, nil
 }
@@ -81,49 +77,45 @@ func (p *ImageClassificationPredictor) Predict(ctx context.Context, data interfa
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "predict")
 	defer span.Finish()
 
+	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
+		// define profiling options
+		poptions := map[string]gomxnet.ProfileMode{
+			"profile_all":        gomxnet.ProfileAllEnable,
+			"profile_symbolic":   gomxnet.ProfileSymbolicOperatorsDisable,
+			"profile_imperative": gomxnet.ProfileImperativeOperatorsDisable,
+			"profile_memory":     gomxnet.ProfileMemoryDisable,
+			"profile_api":        gomxnet.ProfileApiDisable,
+			"continuous_dump":    gomxnet.ProfileContinuousDumpDisable,
+		}
+		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
+			profile.Start()
+			defer func() {
+				profile.Stop()
+				profile.Publish(context.WithValue(ctx, "graph_path", p.GetGraphPath()))
+				profile.Delete()
+			}()
+		}
+	}
+
 	if data == nil {
 		return errors.New("input data nil")
 	}
-	input, ok := data.([]*gotensor.Dense)
+	input, ok := data.([]gotensor.Tensor)
 	if !ok {
 		return errors.New("input data is not slice of dense tensors")
 	}
-
-	session := p.tfSession
-	graph := p.tfGraph
-
-	tensor, err := makeTensorFromGoTensors(input)
-	if err != nil {
-		return err
-	}
-
-	sessionSpan, ctx := tracer.StartSpanFromContext(ctx, tracer.MODEL_TRACE, "c_predict")
 
 	cu, err := p.cuptiStart(ctx)
 	if err != nil {
 		return err
 	}
 
-	fetches, err := session.Run(ctx,
-		map[tf.Output]*tf.Tensor{
-			graph.Operation(p.inputLayer).Output(0): tensor,
-		},
-		[]tf.Output{
-			graph.Operation(p.probabilitiesLayer).Output(0),
-		},
-		nil,
-		p.runOptions(),
-	)
-
-	p.cuptiClose(cu)
-
-	sessionSpan.Finish()
-
+	err = p.predictor.Predict(ctx, input)
 	if err != nil {
-		return errors.Wrapf(err, "failed to perform session.Run")
+		return errors.Wrapf(err, "failed to perform Predict")
 	}
 
-	p.probabilities = fetches[0].Value()
+	p.cuptiClose(cu)
 
 	return nil
 }
@@ -133,9 +125,9 @@ func (p *ImageClassificationPredictor) ReadPredictedFeatures(ctx context.Context
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "read_predicted_features")
 	defer span.Finish()
 
-	e, ok := p.probabilities.([][]float32)
-	if !ok {
-		return nil, errors.New("output is not of type [][]float32")
+	outputs, err := p.predictor.ReadPredictionOutputs(ctx)
+	if err != nil {
+		return nil, err
 	}
 
 	labels, err := p.GetLabels()
@@ -143,7 +135,7 @@ func (p *ImageClassificationPredictor) ReadPredictedFeatures(ctx context.Context
 		return nil, errors.New("cannot get the labels")
 	}
 
-	return p.CreateClassificationFeatures(ctx, e, labels)
+	return p.CreateClassificationFeatures(ctx, outputs[0], labels)
 }
 
 func (p ImageClassificationPredictor) Modality() (dlframework.Modality, error) {

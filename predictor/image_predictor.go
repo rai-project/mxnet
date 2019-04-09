@@ -2,8 +2,9 @@ package predictor
 
 import (
 	"context"
-	"io"
 	"io/ioutil"
+
+	"github.com/k0kubun/pp"
 
 	opentracing "github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
@@ -15,6 +16,7 @@ import (
 	cupti "github.com/rai-project/go-cupti"
 	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/tracer"
+	"gorgonia.org/tensor"
 )
 
 type ImagePredictor struct {
@@ -23,6 +25,9 @@ type ImagePredictor struct {
 }
 
 func (p *ImagePredictor) Close() error {
+	if p == nil {
+		return nil
+	}
 	if p.predictor != nil {
 		p.predictor.Close()
 	}
@@ -49,10 +54,6 @@ func (p *ImagePredictor) Load(ctx context.Context, model dlframework.ModelManife
 				Options:   options.New(opts...),
 			},
 		},
-	}
-
-	if ip.Options.DisableFrameworkAutoTuning() {
-		disableFrameworkAutoTuning()
 	}
 
 	if err = ip.download(ctx); err != nil {
@@ -116,36 +117,34 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download model archive"),
 		)
-		if _, err := downloadmanager.DownloadInto(baseURL, p.WorkDir, downloadmanager.Context(ctx)); err != nil {
+
+		_, err := downloadmanager.DownloadInto(baseURL, p.WorkDir, downloadmanager.Context(ctx))
+		if err != nil {
 			return errors.Wrapf(err, "failed to download model archive from %v", model.Model.BaseUrl)
 		}
 	} else {
 		span.LogFields(
 			olog.String("event", "download model graph"),
 		)
-		checksum := p.GetGraphChecksum()
-		if checksum != "" {
-			if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-				return err
-			}
-		} else {
-			if _, err := downloadmanager.DownloadFile(p.GetGraphUrl(), p.GetGraphPath()); err != nil {
-				return err
-			}
-    }
-    
-    span.LogFields(
+		_, err := downloadmanager.DownloadFile(
+			p.GetGraphUrl(),
+			p.GetGraphPath(),
+			downloadmanager.MD5Sum(p.GetGraphChecksum()),
+		)
+		if err != nil {
+			return err
+		}
+
+		span.LogFields(
 			olog.String("event", "download model weights"),
 		)
-		checksum = p.GetWeightsChecksum()
-		if checksum != "" {
-			if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-				return err
-			}
-		} else {
-			if _, err := downloadmanager.DownloadFile(p.GetWeightsUrl(), p.GetWeightsPath()); err != nil {
-				return err
-			}
+		_, err = downloadmanager.DownloadFile(
+			p.GetWeightsUrl(),
+			p.GetWeightsPath(),
+			downloadmanager.MD5Sum(p.GetWeightsChecksum()),
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -153,15 +152,14 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download features"),
 		)
-		checksum := p.GetFeaturesChecksum()
-		if checksum != "" {
-			if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath(), downloadmanager.MD5Sum(checksum)); err != nil {
-				return err
-			}
-		} else {
-			if _, err := downloadmanager.DownloadFile(p.GetFeaturesUrl(), p.GetFeaturesPath()); err != nil {
-				return err
-			}
+		pp.Println(p.GetFeaturesChecksum())
+		_, err := downloadmanager.DownloadFile(
+			p.GetFeaturesUrl(),
+			p.GetFeaturesPath(),
+			downloadmanager.MD5Sum(p.GetFeaturesChecksum()),
+		)
+		if err != nil {
+			return err
 		}
 	}
 
@@ -172,9 +170,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	if ctx != nil {
 		span, _ := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "load_predictor")
 		defer span.Finish()
-		span.LogFields(
-			olog.String("event", "read graph"),
-		)
 	}
 
 	symbol, err := ioutil.ReadFile(p.GetGraphPath())
@@ -182,29 +177,36 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		return errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
 	}
 
-	span.LogFields(
-		olog.String("event", "read weights"),
-	)
-
 	params, err := ioutil.ReadFile(p.GetWeightsPath())
 	if err != nil {
 		return errors.Wrapf(err, "cannot read %s", p.GetWeightsPath())
 	}
 
-	opts, err := p.GetPredictionOptions(ctx)
+	opts, err := p.GetPredictionOptions()
 	if err != nil {
 		return err
 	}
 
-	span.LogFields(
-		olog.String("event", "creating predictor"),
-	)
+	inputLayer, err := p.GetInputLayerName("input_layer")
+	if err != nil {
+		return errors.Wrap(err, "failed to get the input layer name")
+	}
+	inputDims, err := p.GetInputDimensions()
+	if err != nil {
+		return errors.Wrap(err, "failed to get the input dimensions")
+	}
+	in := options.Node{
+		Key:   inputLayer,
+		Shape: inputDims,
+		Dtype: tensor.Float32,
+	}
 
 	pred, err := gomxnet.New(
 		ctx,
 		options.WithOptions(opts),
-		options.Symbol(symbol),
+		options.Graph(symbol),
 		options.Weights(params),
+		options.InputNodes([]options.Node{in}),
 	)
 	if err != nil {
 		return err

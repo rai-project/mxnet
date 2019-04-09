@@ -8,7 +8,7 @@ input:
 output:
   type: label
 dataset_name: ImageNet
-features_url: http://data.dmlc.ml/mxnet/models/imagenet/synset.txt
+features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
 trained_url: https://1drv.ms/u/s!Am-5JzdW2XHzhqMJZmVOEDgfde8_tg
 references:
   - https://arxiv.org/pdf/1611.07709.pdf

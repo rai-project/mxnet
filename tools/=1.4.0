@@ -1,8 +1,0 @@
-Requirement already up-to-date: mxnet-mkl in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (1.4.0)
-Requirement already satisfied, skipping upgrade: numpy<1.15.0,>=1.8.2 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from mxnet-mkl) (1.14.6)
-Requirement already satisfied, skipping upgrade: graphviz<0.9.0,>=0.8.1 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from mxnet-mkl) (0.8.4)
-Requirement already satisfied, skipping upgrade: requests>=2.20.0 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from mxnet-mkl) (2.21.0)
-Requirement already satisfied, skipping upgrade: chardet<3.1.0,>=3.0.2 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from requests>=2.20.0->mxnet-mkl) (3.0.4)
-Requirement already satisfied, skipping upgrade: urllib3<1.25,>=1.21.1 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from requests>=2.20.0->mxnet-mkl) (1.24.1)
-Requirement already satisfied, skipping upgrade: certifi>=2017.4.17 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from requests>=2.20.0->mxnet-mkl) (2019.3.9)
-Requirement already satisfied, skipping upgrade: idna<2.9,>=2.5 in /Users/chengli/.pyenv/versions/3.6.8/envs/mx-mkl-1.4.0-3.6.8/lib/python3.6/site-packages (from requests>=2.20.0->mxnet-mkl) (2.8)

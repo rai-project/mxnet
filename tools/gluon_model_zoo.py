@@ -100,7 +100,6 @@ def export_imagenet_models():
     ]
     # Pruned ResNet
     models.extend([
-        "resnet18_v1b_2.6x",
         "resnet50_v1d_1.8x",
         "resnet50_v1d_3.6x",
         "resnet50_v1d_5.9x",
@@ -285,11 +284,13 @@ def export_simple_pose_models():
 
 
 if __name__ == "__main__":
-    export_imagenet_models()
-    export_segmentation_models()
-    export_yolo3_models()
-    export_mask_rcnn_models()
-    export_faster_rcnn_models()
-    export_ssd_models()
-    export_classification_models()
-    export_simple_pose_models()
+    pretrained_models = model_zoo.pretrained_model_list()
+    print(pretrained_models)
+    # export_imagenet_models()
+    # export_segmentation_models()
+    # export_yolo3_models()
+    # export_mask_rcnn_models()
+    # export_faster_rcnn_models()
+    # export_ssd_models()
+    # export_classification_models()
+    # export_simple_pose_models()
