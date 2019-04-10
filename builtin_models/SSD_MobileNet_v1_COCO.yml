@@ -22,6 +22,8 @@ inputs: # model inputs
     parameters:
       element_type: float32
       input_layer: 'image_tensor'
+      layout: 'CHW'
+      color_mode: 'RGB'
 output:
   type: boundingbox
   description: the output bounding box # a description of the output parameter

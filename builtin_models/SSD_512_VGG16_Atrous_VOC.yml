@@ -23,6 +23,8 @@ inputs: # model inputs
     parameters:
       element_type: float32
       input_layer: 'data'
+      layout: 'CHW'
+      color_mode: 'RGB'
 output:
   type: boundingbox
   description: the output bounding box # a description of the output parameter
