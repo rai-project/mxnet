@@ -43,27 +43,15 @@ func NewImageClassificationPredictor(model dlframework.ModelManifest, opts ...op
 
 func (self *ImageClassificationPredictor) Load(ctx context.Context, modelManifest dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
 
+	// p.GetOutputLayerIndex("probabilities_layer")
 	pred, err := self.ImagePredictor.Load(ctx, modelManifest, opts...)
 	if err != nil {
 		return nil, err
 	}
-
 	p := &ImageClassificationPredictor{
 		ImagePredictor: pred,
 	}
 
-	// symbol, err := ioutil.ReadFile(p.GetGraphPath())
-	// if err != nil {
-	// 	return nil, errors.Wrapf(err, "cannot read %s", p.GetGraphPath())
-	// }
-
-	// params, err := ioutil.ReadFile(p.GetWeightsPath())
-	// if err != nil {
-	// 	return nil, errors.Wrapf(err, "cannot read %s", p.GetWeightsPath())
-	// }
-
-	// p.options.SetGraph(symbol)
-	// p.options.SetGraph(symbol)
 	// p.probabilitiesLayerIndex, err = p.GetOutputLayerIndex("probabilities_layer")
 	// if err != nil {
 	// 	return nil, errors.Wrap(err, "failed to get the probabilities layer name")

@@ -14,14 +14,14 @@ description: >
   MXNet Image Classification model, which is trained on the ImageNet dataset.
   Use resnet18_v1 from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
-  - https://gluon-cv.mxnet.io/model_zoo/detection.html
-license: Apache License, Version 2.0 # license of the model
+  - https://gluon-cv.mxnet.io/model_zoo/classification.html
+license: unrestricted # license of the model
 inputs: # model inputs
   - type: image # first input modality
     description: the input image # description of the first input
     parameters:
       element_type: float32
-      input_layer: 'data'
+      input_layer: 0
 output:
   type: boundingbox
   description: the output bounding box # a description of the output parameter
@@ -31,16 +31,16 @@ output:
     features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/labels.txt
     features_checksum: 4418c85d01e6c82ff6849b8239759438
 model: # specifies model graph and weights sources
-  base_url:
-  graph_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/resnext101-32x4d/resnext101-32x4d-symbol.json
-  weights_path: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/resnext101-32x4d/resnext101-32x4d-0000.params
-  is_archive: false # if set, then the base_url is a url to an archive
-                    # the graph_path and weights_path then denote the
-                    # file names of the graph and weights within the archive
-  graph_checksum: f3e5c3b8adb8cae1391694a873b7f4e2
-  weights_checksum: 2146ce8953492e35d869160bbd9726b4
-  graph_checksum: c9df908a779062ce00abe8f98e4a3eb1
+  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/resnet18_v1
+  graph_path: model-symbol.json
+  weights_path: model-0000.params
+  is_archive:
+    false # if set, then the base_url is a url to an archive
+    # the graph_path and weights_path then denote the
+    # file names of the graph and weights within the archive
+  graph_checksum: b10b9148d06b184a8ca4af3b06fe403e
+  weights_checksum: fa9e658e88d4259b307a50b36a080bdc
 attributes: # extra model attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
-  training_dataset: COCO # dataset used to for training
+  training_dataset: ImageNet # dataset used to for training
   manifest_author: Cheng Li

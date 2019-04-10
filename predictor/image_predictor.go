@@ -4,8 +4,6 @@ import (
 	"context"
 	"io/ioutil"
 
-	"github.com/k0kubun/pp"
-
 	opentracing "github.com/opentracing/opentracing-go"
 	olog "github.com/opentracing/opentracing-go/log"
 	"github.com/pkg/errors"
@@ -152,7 +150,6 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download features"),
 		)
-		pp.Println(p.GetFeaturesChecksum())
 		_, err := downloadmanager.DownloadFile(
 			p.GetFeaturesUrl(),
 			p.GetFeaturesPath(),
@@ -191,19 +188,37 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "failed to get the input layer name")
 	}
-	inputDims, err := p.GetInputDimensions()
+
+	preprocessOpts, err := p.GetPreprocessOptions()
 	if err != nil {
-		return errors.Wrap(err, "failed to get the input dimensions")
+		return errors.Wrap(err, "failed to get the input preprocess options")
+	}
+
+	if err != nil {
+		return errors.Wrap(err, "failed to get the input predict options")
+	}
+	var dtype tensor.Dtype
+	switch t := preprocessOpts.ElementType; t {
+	case "float32":
+		dtype = tensor.Float32
+	default:
+		panic("currently only supports float32")
 	}
 	in := options.Node{
 		Key:   inputLayer,
-		Shape: inputDims,
-		Dtype: tensor.Float32,
+		Shape: append([]int{1}, preprocessOpts.Dims...),
+		Dtype: dtype,
+	}
+
+	device := options.CPU_DEVICE
+	if p.Options.UsesGPU() {
+		device = options.CUDA_DEVICE
 	}
 
 	pred, err := gomxnet.New(
 		ctx,
 		options.WithOptions(opts),
+		options.Device(device, 0),
 		options.Graph(symbol),
 		options.Weights(params),
 		options.InputNodes([]options.Node{in}),

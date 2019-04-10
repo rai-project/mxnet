@@ -15,7 +15,7 @@ description: >
   Use ssd_512_mobilenet1.0_coco from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/detection.html
-license: Apache License, Version 2.0 # license of the model
+license: unrestricted # license of the model
 inputs: # model inputs
   - type: image # first input modality
     description: the input image # description of the first input
