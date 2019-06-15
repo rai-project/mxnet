@@ -21,6 +21,7 @@ type ImageClassificationPredictor struct {
 	*ImagePredictor
 	inputLayer              string
 	probabilitiesLayerIndex int
+	probabilities           interface{}
 }
 
 func NewImageClassificationPredictor(model dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
@@ -52,10 +53,10 @@ func (self *ImageClassificationPredictor) Load(ctx context.Context, modelManifes
 		ImagePredictor: pred,
 	}
 
-	// p.probabilitiesLayerIndex, err = p.GetOutputLayerIndex("probabilities_layer")
-	// if err != nil {
-	// 	return nil, errors.Wrap(err, "failed to get the probabilities layer name")
-	// }
+	p.probabilitiesLayerIndex, err = p.GetOutputLayerIndex("probabilities_layer")
+	if err != nil {
+		return nil, errors.Wrap(err, "failed to get the probabilities layer index")
+	}
 
 	return p, nil
 }

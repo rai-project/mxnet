@@ -15,6 +15,7 @@ description: >
   Use AlexNet from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/classification.html
+  - https://github.com/dmlc/gluon-cv/blob/master/scripts/classification/imagenet/verify_pretrained.py
 license: unrestricted # license of the model
 inputs: # model inputs
   - type: image # first input modality
@@ -25,7 +26,7 @@ inputs: # model inputs
       layout: 'CHW'
       color_mode: 'RGB'
       dimensions: [3, 224, 224]
-      mean: [123, 117, 104]
+      mean: [0.485, 0.456, 0.406]
 output:
   # the type of the output
   type: classification
@@ -33,6 +34,7 @@ output:
   description: the output label
   parameters: # type parameters
     element_type: float32
+    probabilities_transform: softmax
     probabilities_layer: 0 # index of the probabilities layer in the outputs
     features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
