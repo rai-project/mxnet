@@ -22,7 +22,7 @@ inputs: # model inputs
     description: the input image # description of the first input
     parameters:
       element_type: float32
-      input_layer: 0
+      input_layer: data
       layout: 'CHW'
       color_mode: 'RGB'
       dimensions: [3, 224, 224]

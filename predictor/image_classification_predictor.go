@@ -19,7 +19,6 @@ import (
 
 type ImageClassificationPredictor struct {
 	*ImagePredictor
-	inputLayer              string
 	probabilitiesLayerIndex int
 	probabilities           interface{}
 }
@@ -39,16 +38,16 @@ func NewImageClassificationPredictor(model dlframework.ModelManifest, opts ...op
 	}
 
 	predictor := new(ImageClassificationPredictor)
+
 	return predictor.Load(ctx, model, opts...)
 }
 
 func (self *ImageClassificationPredictor) Load(ctx context.Context, modelManifest dlframework.ModelManifest, opts ...options.Option) (common.Predictor, error) {
-
-	// p.GetOutputLayerIndex("probabilities_layer")
 	pred, err := self.ImagePredictor.Load(ctx, modelManifest, opts...)
 	if err != nil {
 		return nil, err
 	}
+
 	p := &ImageClassificationPredictor{
 		ImagePredictor: pred,
 	}
@@ -91,7 +90,7 @@ func (p *ImageClassificationPredictor) Predict(ctx context.Context, data interfa
 	}
 	input, ok := data.([]gotensor.Tensor)
 	if !ok {
-		return errors.New("input data is not slice of dense tensors")
+		return errors.New("input data is not slice of go tensors")
 	}
 
 	cu, err := p.cuptiStart(ctx)
