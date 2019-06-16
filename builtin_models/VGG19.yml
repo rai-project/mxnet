@@ -1,0 +1,55 @@
+name: VGG19 # name of your model
+framework:
+  name: MXNet # framework for the model
+  version: '>=1.1.0' # framework version contraint
+version: 1.0 # version information in semantic version format
+container: # containers used to perform model evaluation
+  amd64:
+    gpu: raiproject/carml-caffe:amd64-cpu
+    cpu: raiproject/carml-caffe:amd64-gpu
+  ppc64le:
+    cpu: raiproject/carml-caffe:ppc64le-gpu
+    gpu: raiproject/carml-caffe:ppc64le-gpu
+description: >
+  MXNet Image Classification model, which is trained on the ImageNet dataset.
+  Use VGG19 from GluonCV model zoo.
+references: # references to papers / websites / etc.. describing the model
+  - https://gluon-cv.mxnet.io/model_zoo/classification.html
+  - https://github.com/dmlc/gluon-cv/blob/master/scripts/classification/imagenet/verify_pretrained.py
+license: unrestricted # license of the model
+inputs: # model inputs
+  - type: image # first input modality
+    description: the input image # description of the first input
+    parameters:
+      element_type: float32
+      input_layer: data
+      layout: 'CHW'
+      color_mode: 'RGB'
+      dimensions: [3, 224, 224]
+      mean: [123.675, 116.28, 103.53]
+      scale: [58.395, 57.12, 57.375]
+output:
+  type: classification # the type of the output
+  description: the output label # a description of the output parameter
+  parameters: # type parameters
+    element_type: float32
+    probabilities_transform: softmax # transfrom the output probabilities
+    probabilities_layer: 0 # index of the probabilities layer in the outputs
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
+model: # specifies model graph and weights sources
+  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/vgg19
+  graph_path: model-symbol.json
+  weights_path: model-0000.params
+  is_archive:
+    false # if set, then the base_url is a url to an archive
+    # the graph_path and weights_path then denote the
+    # file names of the graph and weights within the archive
+  graph_checksum:
+  weights_checksum:
+attributes: # extra model attributes
+  kind: CNN # the kind of neural network (CNN, RNN, ...)
+  training_dataset: ImageNet # dataset used to for training
+  manifest_author: Cheng Li
+  Top1: 74.11
+  Top5: 91.35
