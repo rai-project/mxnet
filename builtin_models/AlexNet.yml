@@ -26,7 +26,7 @@ inputs: # model inputs
       layout: 'CHW'
       color_mode: 'RGB'
       dimensions: [3, 224, 224]
-      mean: [0.485, 0.456, 0.406]
+      mean: [123.675, 116.28, 103.53]
 output:
   # the type of the output
   type: classification

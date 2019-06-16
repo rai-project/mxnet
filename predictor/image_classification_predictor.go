@@ -88,7 +88,7 @@ func (p *ImageClassificationPredictor) Predict(ctx context.Context, data interfa
 	if data == nil {
 		return errors.New("input data nil")
 	}
-	input, ok := data.([]gotensor.Tensor)
+	input, ok := data.([]*gotensor.Dense)
 	if !ok {
 		return errors.New("input data is not slice of go tensors")
 	}
@@ -123,7 +123,7 @@ func (p *ImageClassificationPredictor) ReadPredictedFeatures(ctx context.Context
 		return nil, errors.New("cannot get the labels")
 	}
 
-	return p.CreateClassificationFeatures(ctx, outputs[0], labels)
+	return p.CreateClassificationFeatures(ctx, outputs[p.probabilitiesLayerIndex], labels)
 }
 
 func (p ImageClassificationPredictor) Modality() (dlframework.Modality, error) {

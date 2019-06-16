@@ -2,13 +2,11 @@ package predictor
 
 import (
 	"context"
-	"image"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/rai-project/dlframework/framework/options"
 	raiimage "github.com/rai-project/image"
+	imageexamples "github.com/rai-project/image/examples"
 	"github.com/rai-project/image/types"
 	mx "github.com/rai-project/mxnet"
 	nvidiasmi "github.com/rai-project/nvidia-smi"
@@ -16,48 +14,17 @@ import (
 	gotensor "gorgonia.org/tensor"
 )
 
-func normalizeImageHWC(in0 image.Image, mean []float32, scale []float32) ([]float32, error) {
-	height := in0.Bounds().Dy()
-	width := in0.Bounds().Dx()
-	out := make([]float32, 3*height*width)
-	switch in := in0.(type) {
-	case *types.RGBImage:
-		for y := 0; y < height; y++ {
-			for x := 0; x < width; x++ {
-				offset := y*in.Stride + x*3
-				rgb := in.Pix[offset : offset+3]
-				r, g, b := rgb[0], rgb[1], rgb[2]
-				out[offset+0] = (float32(r) - mean[0]) / scale[0]
-				out[offset+1] = (float32(g) - mean[1]) / scale[1]
-				out[offset+2] = (float32(b) - mean[2]) / scale[2]
-			}
-		}
-	case *types.BGRImage:
-		for y := 0; y < height; y++ {
-			for x := 0; x < width; x++ {
-				offset := y*in.Stride + x*3
-				bgr := in.Pix[offset : offset+3]
-				b, g, r := bgr[0], bgr[1], bgr[2]
-				out[offset+0] = (float32(b) - mean[0]) / scale[0]
-				out[offset+1] = (float32(g) - mean[1]) / scale[1]
-				out[offset+2] = (float32(r) - mean[2]) / scale[2]
-			}
-		}
-	default:
-		panic("unreachable")
-	}
-
-	return out, nil
-}
-
-func normalizeImageCHW(in *types.RGBImage, mean []float32, scale []float32) ([]float32, error) {
+func normalizeImageCHW(in types.Image, mean []float32, scale []float32) ([]float32, error) {
 	height := in.Bounds().Dy()
 	width := in.Bounds().Dx()
+	channels := in.Channels()
+	stride := width * channels
+	pix := in.Pixels()
 	out := make([]float32, 3*height*width)
 	for y := 0; y < height; y++ {
 		for x := 0; x < width; x++ {
-			offset := y*in.Stride + x*3
-			rgb := in.Pix[offset : offset+3]
+			offset := y*stride + x*channels
+			rgb := pix[offset : offset+channels]
 			r, g, b := rgb[0], rgb[1], rgb[2]
 			out[y*width+x] = (float32(r) - mean[0]) / scale[0]
 			out[width*height+y*width+x] = (float32(g) - mean[1]) / scale[1]
@@ -66,6 +33,7 @@ func normalizeImageCHW(in *types.RGBImage, mean []float32, scale []float32) ([]f
 	}
 	return out, nil
 }
+
 func TestNewImageClassificationPredictor(t *testing.T) {
 	mx.Register()
 	model, err := mx.FrameworkManifest.FindModel("SqueezeNet_v1:1.0")
@@ -106,13 +74,6 @@ func TestImageClassification(t *testing.T) {
 	assert.NotEmpty(t, predictor)
 	defer predictor.Close()
 
-	imgDir, _ := filepath.Abs("./_fixtures")
-	imgPath := filepath.Join(imgDir, "platypus.jpg")
-	r, err := os.Open(imgPath)
-	if err != nil {
-		panic(err)
-	}
-
 	preprocessOpts, err := predictor.GetPreprocessOptions()
 	assert.NoError(t, err)
 	channels := preprocessOpts.Dims[0]
@@ -120,24 +81,20 @@ func TestImageClassification(t *testing.T) {
 	width := preprocessOpts.Dims[2]
 	mode := preprocessOpts.ColorMode
 
-	var imgOpts []raiimage.Option
-	if mode == types.RGBMode {
-		imgOpts = append(imgOpts, raiimage.Mode(types.RGBMode))
-	} else {
-		imgOpts = append(imgOpts, raiimage.Mode(types.BGRMode))
+	imgOpts := []raiimage.Option{
+		raiimage.Mode(mode),
+		raiimage.Width(width),
+		raiimage.Height(height),
+		raiimage.ResizeAlgorithm(types.ResizeAlgorithmLinear),
 	}
 
-	img, err := raiimage.Read(r, imgOpts...)
+	img, err := imageexamples.Get("platypus", imgOpts...)
 	if err != nil {
 		panic(err)
 	}
 
-	imgOpts = append(imgOpts, raiimage.Resized(height, width))
-	imgOpts = append(imgOpts, raiimage.ResizeAlgorithm(types.ResizeAlgorithmLinear))
-	resized, err := raiimage.Resize(img, imgOpts...)
-
-	input := make([]gotensor.Tensor, batchSize)
-	imgFloats, err := normalizeImageHWC(resized, preprocessOpts.MeanImage, preprocessOpts.Scale)
+	input := make([]*gotensor.Dense, batchSize)
+	imgFloats, err := normalizeImageCHW(img, preprocessOpts.MeanImage, preprocessOpts.Scale)
 	if err != nil {
 		panic(err)
 	}
@@ -160,8 +117,8 @@ func TestImageClassification(t *testing.T) {
 	if err != nil {
 		return
 	}
-	assert.InDelta(t, float32(0.998212), pred[0][0].GetProbability(), 0.001)
-	assert.Equal(t, int32(104), pred[0][0].GetClassification().GetIndex())
+	assert.InDelta(t, float32(0.967381), pred[0][0].GetProbability(), 0.001)
+	assert.Equal(t, int32(103), pred[0][0].GetClassification().GetIndex())
 }
 
 // func TestImageEnhancement(t *testing.T) {
