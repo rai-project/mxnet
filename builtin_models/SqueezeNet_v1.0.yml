@@ -1,4 +1,4 @@
-name: SqueezeNet_v1 # name of your model
+name: SqueezeNet_v1.0 # name of your model
 framework:
   name: MXNet # framework for the model
   version: '>=1.1.0' # framework version contraint
@@ -12,7 +12,7 @@ container: # containers used to perform model evaluation
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
   MXNet Image Classification model, which is trained on the ImageNet dataset.
-  Use SqueezeNet_v1 from GluonCV model zoo.
+  Use SqueezeNet_v1.0 from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/classification.html
   - https://github.com/dmlc/gluon-cv/blob/master/scripts/classification/imagenet/verify_pretrained.py
@@ -53,5 +53,5 @@ attributes: # extra model attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training
   manifest_author: Cheng Li
-Top1:
-Top5:
+  Top1: 56.11
+  Top5: 79.09

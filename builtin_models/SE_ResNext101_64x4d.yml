@@ -1,4 +1,4 @@
-name: Darknet53 # name of your model
+name: SE_ResNext101_64x4d # name of your model
 framework:
   name: MXNet # framework for the model
   version: '>=1.1.0' # framework version contraint
@@ -12,7 +12,7 @@ container: # containers used to perform model evaluation
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
   MXNet Image Classification model, which is trained on the ImageNet dataset.
-  Use Darknet53 from GluonCV model zoo.
+  Use SE_ResNext101_64x4d from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/classification.html
 license: unrestricted # license of the model
@@ -37,7 +37,7 @@ output:
     features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
     features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights sources
-  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/darknet53
+  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/se_resnext101_64x4d
   graph_path: model-symbol.json
   weights_path: model-0000.params
   is_archive:
@@ -50,5 +50,5 @@ attributes: # extra model attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training
   manifest_author: Cheng Li
-  Top1: 78.56
-  Top5: 94.43
+  Top1: 81.01
+  Top5: 95.32
