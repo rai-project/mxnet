@@ -12,7 +12,7 @@ container: # containers used to perform model evaluation
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
   MXNet Image Classification model, which is trained on the ImageNet dataset.
-  Use resnet18_v1 from GluonCV model zoo.
+  Use ResNet18_v1 from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/classification.html
 license: unrestricted # license of the model
@@ -24,14 +24,18 @@ inputs: # model inputs
       input_layer: data
       layout: 'CHW'
       color_mode: 'RGB'
+      dimensions: [3, 224, 224]
+      mean: [123.675, 116.28, 103.53]
+      scale: [58.395, 57.12, 57.375]
 output:
-  type: boundingbox
-  description: the output bounding box # a description of the output parameter
-  parameters:
+  type: classification # the type of the output
+  description: the output label # a description of the output parameter
+  parameters: # type parameters
     element_type: float32
-    probabilities_layer: 0
-    features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/labels.txt
-    features_checksum: 4418c85d01e6c82ff6849b8239759438
+    probabilities_transform: softmax # transfrom the output probabilities
+    probabilities_layer: 0 # index of the probabilities layer in the outputs
+    features_url: http://s3.amazonaws.com/store.carml.org/synsets/imagenet/synset.txt
+    features_checksum: 4d234b5833aca44928065a180db3016a
 model: # specifies model graph and weights sources
   base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/resnet18_v1
   graph_path: model-symbol.json
@@ -46,3 +50,5 @@ attributes: # extra model attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
   training_dataset: ImageNet # dataset used to for training
   manifest_author: Cheng Li
+  Top1: 70.93
+  Top5: 89.92

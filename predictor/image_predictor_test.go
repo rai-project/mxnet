@@ -54,7 +54,8 @@ func TestNewImageClassificationPredictor(t *testing.T) {
 
 func TestImageClassification(t *testing.T) {
 	mx.Register()
-	model, err := mx.FrameworkManifest.FindModel("SqueezeNet_v1:1.0")
+	// model, err := mx.FrameworkManifest.FindModel("SqueezeNet_v1:1.0")
+	model, err := mx.FrameworkManifest.FindModel("ResNet18_v1:1.0")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, model)
 
