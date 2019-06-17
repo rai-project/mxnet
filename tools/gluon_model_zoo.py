@@ -26,15 +26,15 @@ def export0(name, net, input):
         except:
             pass
         net.export(tmpdir + "model")
-        onnx_mxnet.export_model(
-            tmpdir + "model-symbol.json",
-            tmpdir + "model-0000.params",
-            [input.shape],
-            np.float32,
-            "/tmp/onnx/{}_float32.onnx".format(name),
+        # onnx_mxnet.export_model(
+        #     tmpdir + "model-symbol.json",
+        #     tmpdir + "model-0000.params",
+        #     [input.shape],
+        #     np.float32,
+        #     "/tmp/onnx/{}_float32.onnx".format(name),
             # verbose=True,
-        )
-        print("wrote /tmp/onnx/{}_float32.onnx to disk".format(name))
+        # )
+        # print("wrote /tmp/onnx/{}_float32.onnx to disk".format(name))
     except Exception as inst:
         print(inst)
         # try:
@@ -216,8 +216,7 @@ def export_faster_rcnn_models():
         "faster_rcnn_fpn_bn_resnet50_v1b_coco",
         "faster_rcnn_fpn_resnet101_v1d_coco",
     ]
-    export_model_list(models, ctx, x)
-
+    export(models, ctx, x)
 
 def export_mask_rcnn_models():
     ctx = mx.context.current_context()
@@ -253,17 +252,17 @@ def export_segmentation_models():
         "fcn_resnet101_voc",
         "fcn_resnet50_ade",
         "fcn_resnet101_ade",
-        "deeplab_resnet101_coco",
-        "deeplab_resnet101_voc",
-        "deeplab_resnet152_coco",
-        "deeplab_resnet152_voc",
-        "deeplab_resnet50_ade",
-        "deeplab_resnet101_ade",
-        "psp_resnet101_coco",
-        "psp_resnet101_voc",
-        "psp_resnet50_ade",
-        "psp_resnet101_ade",
-        "psp_resnet101_citys",
+        # "deeplab_resnet101_coco",
+        # "deeplab_resnet101_voc",
+        # "deeplab_resnet152_coco",
+        # "deeplab_resnet152_voc",
+        # "deeplab_resnet50_ade",
+        # "deeplab_resnet101_ade",
+        # "psp_resnet101_coco",
+        # "psp_resnet101_voc",
+        # "psp_resnet50_ade",
+        # "psp_resnet101_ade",
+        # "psp_resnet101_citys",
     ]
     export(models, ctx, x, pretrained=True, pretrained_base=True)
 
@@ -290,7 +289,7 @@ if __name__ == "__main__":
     # export_segmentation_models()
     # export_yolo3_models()
     # export_mask_rcnn_models()
-    # export_faster_rcnn_models()
-    # export_ssd_models()
+    export_faster_rcnn_models()
+    export_ssd_models()
     # export_classification_models()
-    # export_simple_pose_models()
+    export_simple_pose_models()
