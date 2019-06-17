@@ -11,7 +11,7 @@ container: # containers used to perform model evaluation
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  MXNet Object Detection model, which is trained on the Pascal VOC dataset.
+  MXNet Object Detection model, which is trained on the COCO dataset.
   Use ssd_512_vgg16_atrous_coco from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/detection.html
@@ -24,7 +24,7 @@ inputs: # model inputs
       input_layer: 'data'
       layout: 'CHW'
       color_mode: 'RGB'
-      dimensions: [3, 300, 300]
+      dimensions: [3, 512, 544]
       mean: [123.675, 116.28, 103.53]
       scale: [58.395, 57.12, 57.375]
 output:
@@ -35,8 +35,8 @@ output:
     classes_layer: 0
     probabilities_layer: 1
     boxes_layer: 2
-    features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/labels.txt
-    features_checksum: 4418c85d01e6c82ff6849b8239759438
+    features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/coco_labels_2014_2017.txt
+    features_checksum: 571d630ea11ec39c0b6e6e9ff216b151
 model: # specifies model graph and weights sources
   base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/ssd_512_vgg16_atrous_coco
   graph_path: model-symbol.json

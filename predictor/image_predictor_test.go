@@ -293,7 +293,7 @@ func TestImageClassification(t *testing.T) {
 
 func TestObjectDetection(t *testing.T) {
 	mx.Register()
-	model, err := mx.FrameworkManifest.FindModel("SSD_512_ResNet50_v1_VOC:1.0")
+	model, err := mx.FrameworkManifest.FindModel("SSD_300_VGG16_Atrous_COCO:1.0")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, model)
 

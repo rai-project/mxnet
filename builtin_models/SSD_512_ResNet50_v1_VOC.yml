@@ -24,7 +24,7 @@ inputs: # model inputs
       input_layer: 'data'
       layout: 'CHW'
       color_mode: 'RGB'
-      dimensions: [3, 512, 512]
+      dimensions: [3, 512, 544]
       mean: [123.675, 116.28, 103.53]
       scale: [58.395, 57.12, 57.375]
 output:
@@ -35,7 +35,7 @@ output:
     classes_layer: 0
     probabilities_layer: 1
     boxes_layer: 2
-    features_url: https://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/ssd_512_resnet50_v1_voc/pascal_voc_no_background_synset.txt
+    features_url: https://s3.amazonaws.com/store.carml.org/synsets/pascal_voc/pascal_voc_lables_no_background.txt
     features_checksum: 5ae5d62183cfb6f6d3ac109359d06a1b
 model: # specifies model graph and weights sources
   base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/ssd_512_resnet50_v1_voc
