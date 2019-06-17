@@ -2,11 +2,12 @@ package predictor
 
 import (
 	"context"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/rai-project/dlframework/framework/options"
 	raiimage "github.com/rai-project/image"
-	imageexamples "github.com/rai-project/image/examples"
 	"github.com/rai-project/image/types"
 	mx "github.com/rai-project/mxnet"
 	nvidiasmi "github.com/rai-project/nvidia-smi"
@@ -54,8 +55,7 @@ func TestNewImageClassificationPredictor(t *testing.T) {
 
 func TestImageClassification(t *testing.T) {
 	mx.Register()
-	// model, err := mx.FrameworkManifest.FindModel("SqueezeNet_v1:1.0")
-	model, err := mx.FrameworkManifest.FindModel("ResNet18_v1:1.0")
+	model, err := mx.FrameworkManifest.FindModel("SqueezeNet_v1.0:1.0")
 	assert.NoError(t, err)
 	assert.NotEmpty(t, model)
 
@@ -89,7 +89,14 @@ func TestImageClassification(t *testing.T) {
 		raiimage.ResizeAlgorithm(types.ResizeAlgorithmLinear),
 	}
 
-	img, err := imageexamples.Get("platypus", imgOpts...)
+	imgDir, _ := filepath.Abs("./_fixtures")
+	imgPath := filepath.Join(imgDir, "platypus.jpg")
+	r, err := os.Open(imgPath)
+	if err != nil {
+		panic(err)
+	}
+
+	img, err := raiimage.Read(r, imgOpts...)
 	if err != nil {
 		panic(err)
 	}
@@ -284,73 +291,88 @@ func TestImageClassification(t *testing.T) {
 // 	assert.InDelta(t, float32(0.998607), pred[0][0].GetProbability(), 0.001)
 // }
 
-// func TestObjectDetection(t *testing.T) {
-// 	mx.Register()
-// 	model, err := mx.FrameworkManifest.FindModel("ssd_mobilenet_v1_coco:1.0")
-// 	assert.NoError(t, err)
-// 	assert.NotEmpty(t, model)
+func TestObjectDetection(t *testing.T) {
+	mx.Register()
+	model, err := mx.FrameworkManifest.FindModel("SSD_512_ResNet50_v1_VOC:1.0")
+	assert.NoError(t, err)
+	assert.NotEmpty(t, model)
 
-// 	device := options.CPU_DEVICE
-// 	if nvidiasmi.HasGPU {
-// 		device = options.CUDA_DEVICE
-// 	}
+	device := options.CPU_DEVICE
+	if nvidiasmi.HasGPU {
+		device = options.CUDA_DEVICE
+	}
 
-// 	batchSize := 1
-// 	ctx := context.Background()
-// 	opts := options.New(options.Context(ctx),
-// 		options.Device(device, 0),
-// 		options.BatchSize(batchSize))
+	batchSize := 2
+	ctx := context.Background()
+	opts := options.New(options.Context(ctx),
+		options.Device(device, 0),
+		options.BatchSize(batchSize))
 
-// 	predictor, err := NewObjectDetectionPredictor(*model, options.WithOptions(opts))
-// 	assert.NoError(t, err)
-// 	assert.NotEmpty(t, predictor)
-// 	defer predictor.Close()
+	predictor, err := NewObjectDetectionPredictor(*model, options.WithOptions(opts))
+	assert.NoError(t, err)
+	assert.NotEmpty(t, predictor)
+	defer predictor.Close()
 
-// 	imgDir, _ := filepath.Abs("./_fixtures")
-// 	imgPath := filepath.Join(imgDir, "lane_control.jpg")
-// 	r, err := os.Open(imgPath)
-// 	if err != nil {
-// 		panic(err)
-// 	}
-// 	img, err := raiimage.Read(r)
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	preprocessOpts, err := predictor.GetPreprocessOptions()
+	assert.NoError(t, err)
+	channels := preprocessOpts.Dims[0]
+	height := preprocessOpts.Dims[1]
+	width := preprocessOpts.Dims[2]
+	mode := preprocessOpts.ColorMode
 
-// 	height := img.Bounds().Dy()
-// 	width := img.Bounds().Dx()
-// 	channels := 3
-// 	input := make([]*gotensor.Dense, batchSize)
-// 	imgBytes := img.(*types.RGBImage).Pix
+	imgOpts := []raiimage.Option{
+		raiimage.Mode(mode),
+		raiimage.Width(width),
+		raiimage.Height(height),
+		raiimage.ResizeAlgorithm(types.ResizeAlgorithmLinear),
+	}
 
-// 	for ii := 0; ii < batchSize; ii++ {
-// 		input[ii] = gotensor.New(
-// 			gotensor.WithShape(height, width, channels),
-// 			gotensor.WithBacking(imgBytes),
-// 		)
-// 	}
+	imgDir, _ := filepath.Abs("./_fixtures")
+	imgPath := filepath.Join(imgDir, "3dogs.jpg")
+	r, err := os.Open(imgPath)
+	if err != nil {
+		panic(err)
+	}
 
-// 	err = predictor.Predict(ctx, input)
-// 	assert.NoError(t, err)
-// 	if err != nil {
-// 		return
-// 	}
+	img, err := raiimage.Read(r, imgOpts...)
+	if err != nil {
+		panic(err)
+	}
 
-// 	pred, err := predictor.ReadPredictedFeatures(ctx)
-// 	assert.NoError(t, err)
-// 	if err != nil {
-// 		return
-// 	}
+	input := make([]*gotensor.Dense, batchSize)
+	imgFloats, err := normalizeImageCHW(img, preprocessOpts.MeanImage, preprocessOpts.Scale)
+	if err != nil {
+		panic(err)
+	}
 
-// 	assert.InDelta(t, float32(0.936415), pred[0][0].GetProbability(), 0.001)
-// }
+	for ii := 0; ii < batchSize; ii++ {
+		input[ii] = gotensor.New(
+			gotensor.WithShape(height, width, channels),
+			gotensor.WithBacking(imgFloats),
+		)
+	}
 
-// func max(x, y int) int {
-// 	if x < y {
-// 		return y
-// 	}
-// 	return x
-// }
+	err = predictor.Predict(ctx, input)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+
+	pred, err := predictor.ReadPredictedFeatures(ctx)
+	assert.NoError(t, err)
+	if err != nil {
+		return
+	}
+	assert.InDelta(t, float32(0.996272), pred[0][0].GetProbability(), 0.001)
+	assert.Equal(t, int32(11), pred[0][0].GetBoundingBox().GetIndex())
+}
+
+func max(x, y int) int {
+	if x < y {
+		return y
+	}
+	return x
+}
 
 // func TestSemanticSegmentation(t *testing.T) {
 // 	mx.Register()

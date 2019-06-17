@@ -223,11 +223,6 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		options.Weights(params),
 		options.BatchSize(p.BatchSize()),
 		options.InputNodes([]options.Node{in}),
-		options.OutputNodes([]options.Node{
-			options.Node{
-				Dtype: tensor.Float32,
-			},
-		}),
 	)
 
 	if err != nil {

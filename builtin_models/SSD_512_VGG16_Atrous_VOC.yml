@@ -1,5 +1,4 @@
 name: SSD_512_VGG16_Atrous_VOC # name of your model
-
 framework:
   name: MXNet # framework for the model
   version: '>=1.1.0' # framework version contraint
@@ -12,7 +11,7 @@ container: # containers used to perform model evaluation
     cpu: raiproject/carml-caffe:ppc64le-gpu
     gpu: raiproject/carml-caffe:ppc64le-gpu
 description: >
-  MXNet Object Detection model, which is trained on the COCO (Common Objects in Context) dataset.
+  MXNet Object Detection model, which is trained on the Pascal VOC dataset.
   Use ssd_512_vgg16_atrous_voc from GluonCV model zoo.
 references: # references to papers / websites / etc.. describing the model
   - https://gluon-cv.mxnet.io/model_zoo/detection.html
@@ -25,27 +24,32 @@ inputs: # model inputs
       input_layer: 'data'
       layout: 'CHW'
       color_mode: 'RGB'
+      dimensions: [3, 512, 512]
+      mean: [123.675, 116.28, 103.53]
+      scale: [58.395, 57.12, 57.375]
 output:
   type: boundingbox
   description: the output bounding box # a description of the output parameter
   parameters:
     element_type: float32
-    boxes_layer: 0
+    classes_layer: 0
     probabilities_layer: 1
-    classes_layer: 2
-    features_url: https://s3.amazonaws.com/store.carml.org/synsets/coco/labels.txt
-    features_checksum: 4418c85d01e6c82ff6849b8239759438
+    boxes_layer: 2
+    features_url: https://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/ssd_512_resnet50_v1_voc/pascal_voc_no_background_synset.txt
+    features_checksum: 5ae5d62183cfb6f6d3ac109359d06a1b
 model: # specifies model graph and weights sources
-  base_url:
-  graph_path: https://s3.amazonaws.com/store.carml.org/models/tensorflow/models/ssd_mobilenet_v1_coco_2018_01_28/frozen_inference_graph.pb
+  base_url: http://s3.amazonaws.com/store.carml.org/models/mxnet/gluoncv/ssd_512_vgg16_atrous_voc
+  graph_path: model-symbol.json
+  weights_path: model-0000.params
   is_archive:
-    false # if true, then the base_url is a url to an archive
+    false # if set, then the base_url is a url to an archive
     # the graph_path and weights_path then denote the
     # file names of the graph and weights within the archive
-  graph_checksum: c9df908a779062ce00abe8f98e4a3eb1
+  graph_checksum:
+  weights_checksum:
 attributes: # extra model attributes
   kind: CNN # the kind of neural network (CNN, RNN, ...)
-  training_dataset: COCO # dataset used to for training
+  training_dataset: Pascal VOC # dataset used to for training
   manifest_author: Cheng Li
-Top1:
-Top5:
+  IoU threshold: 0.5
+  mAP: 79.2
