@@ -7,6 +7,12 @@
 
 [![](https://images.microbadger.com/badges/version/carml/mxnet:ppc64le-gpu-latest.svg)](https://microbadger.com/images/carml/mxnet:ppc64le-gpu-latest> 'Get your own version badge on microbadger.com') [![](https://images.microbadger.com/badges/version/carml/mxnet:ppc64le-cpu-latest.svg)](https://microbadger.com/images/carml/mxnet:ppc64le-cpu-latest 'Get your own version badge on microbadger.com') [![](https://images.microbadger.com/badges/version/carml/mxnet:amd64-cpu-latest.svg)](https://microbadger.com/images/carml/mxnet:amd64-cpu-latest 'Get your own version badge on microbadger.com') [![](https://images.microbadger.com/badges/version/carml/mxnet:amd64-gpu-latest.svg)](https://microbadger.com/images/carml/mxnet:amd64-gpu-latest 'Get your own version badge on microbadger.com')
 
+This is the MXNet agent for [MLModelScope](mlmodelscope.org), an open-source framework and hardware agnostic, extensible and customizable platform for evaluating and profiling ML models across datasets / frameworks / systems, and within AI application pipelines.
+
+Currently it has most of the models from Gluon Model Zoo built in. More built-in models are comming.
+One can evaluate the **~80** models on any systems of insterest with either local MXNet installation or MXNet docker images.
+
+Check out [MLModelScope](mlmodelscope.org) and welcome to contribute.
 
 ## Installation
 
@@ -46,7 +52,6 @@ export GODEBUG=cgocheck=0
 
 in your `~/.bashrc` or `~/.zshrc` file and then run either `source ~/.bashrc` or `source ~/.zshrc`
 
-
 ### The MXNet C library
 
 The MXNet C library is required.
@@ -54,7 +59,6 @@ The MXNet C library is required.
 If you use MXNet Docker Images (e.g. NVIDIA GPU CLOUD (NGC)), skip this step.
 
 Refer to [go-mxnet](https://github.com/rai-project/go-mxnet#mxnet-installation) for mxnet installation.
-
 
 ## External services
 
