@@ -1,4 +1,4 @@
-name: MobileNet_1.0# name of your model
+name: MobileNet_1.0 # name of your model
 framework:
   name: MXNet # framework for the model
   version: '>=1.1.0' # framework version contraint

@@ -20,6 +20,7 @@ import (
 type ImagePredictor struct {
 	common.ImagePredictor
 	predictor *gomxnet.Predictor
+	cu        *cupti.CUPTI
 }
 
 func (p *ImagePredictor) Close() error {
@@ -234,21 +235,23 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	return nil
 }
 
-func (p *ImagePredictor) cuptiStart(ctx context.Context) (*cupti.CUPTI, error) {
+func (p *ImagePredictor) cuptiStart(ctx context.Context) error {
 	if !p.UseGPU() || p.TraceLevel() < tracer.HARDWARE_TRACE {
-		return nil, nil
+		return nil
 	}
 	cu, err := cupti.New(cupti.Context(ctx), cupti.SamplingPeriod(0))
 	if err != nil {
-		return nil, err
+		return err
 	}
-	return cu, nil
+	p.cu = cu
+	return nil
 }
 
-func (p *ImagePredictor) cuptiClose(cu *cupti.CUPTI) {
-	if cu == nil {
+func (p *ImagePredictor) cuptiClose() {
+	if p.cu == nil {
 		return
 	}
-	cu.Wait()
-	cu.Close()
+	p.cu.Wait()
+	p.cu.Close()
+	p.cu = nil
 }

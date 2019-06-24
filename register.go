@@ -34,5 +34,8 @@ func assetFS() *assetfs.AssetFS {
 }
 
 func Register() {
-	framework.Register(FrameworkManifest, assetFS())
+	err := framework.Register(FrameworkManifest, assetFS())
+	if err != nil {
+		log.WithError(err).Error("Failed to register server")
+	}
 }

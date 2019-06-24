@@ -12,7 +12,7 @@ import (
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predictor"
 	gomxnet "github.com/rai-project/go-mxnet/mxnet"
-	"github.com/rai-project/tensorflow"
+	"github.com/rai-project/mxnet"
 	"github.com/rai-project/tracer"
 	"gorgonia.org/tensor"
 	gotensor "gorgonia.org/tensor"
@@ -119,7 +119,7 @@ func (p *ObjectDetectionPredictor) Predict(ctx context.Context, data interface{}
 		return errors.New("input data is not slice of go tensors")
 	}
 
-	cu, err := p.cuptiStart(ctx)
+	err := p.cuptiStart(ctx)
 	if err != nil {
 		return err
 	}
@@ -129,7 +129,7 @@ func (p *ObjectDetectionPredictor) Predict(ctx context.Context, data interface{}
 		return errors.Wrapf(err, "failed to perform Predict")
 	}
 
-	p.cuptiClose(cu)
+	p.cuptiClose()
 
 	return nil
 }
@@ -180,7 +180,7 @@ func (p ObjectDetectionPredictor) Modality() (dlframework.Modality, error) {
 
 func init() {
 	config.AfterInit(func() {
-		framework := tensorflow.FrameworkManifest
+		framework := mxnet.FrameworkManifest
 		agent.AddPredictor(framework, &ObjectDetectionPredictor{
 			ImagePredictor: &ImagePredictor{
 				ImagePredictor: common.ImagePredictor{
