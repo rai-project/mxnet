@@ -1,6 +1,4 @@
-FROM carml/go-mxnet:amd64-gpu-latest
-MAINTAINER Abdul Dakkak <dakkak@illinois.edu>
-
+FROM nvcr.io/nvidia/mxnet:19.06-py3
 
 # Build-time metadata as defined at http://label-schema.org
 ARG BUILD_DATE
@@ -18,7 +16,29 @@ LABEL org.mlmodelscope.mxnet.agent.build-date=$BUILD_DATE \
     org.mlmodelscope.mxnet.agent.version=$VERSION \
     org.mlmodelscope.mxnet.agent.schema-version="1.0"
 
-ENV LD_LIBRARY_PATH /usr/local/cuda-10.1/compat:$LD_LIBRARY_PATH
+# Install Go
+ENV GIMME_GO_VERSION "1.12"
+ENV GIMME_OS "linux"
+ENV GIMME_ARCH $ARCH
+
+LABEL org.golang.version=$GIMME_GO_VERSION
+LABEL org.golang.os=$GIMME_OS
+LABEL org.golang.arch=$GIMME_ARCH
+
+ADD https://raw.githubusercontent.com/travis-ci/gimme/master/gimme /usr/bin/gimme
+RUN chmod +x /usr/bin/gimme
+RUN gimme
+
+ENV GOROOT "/root/.gimme/versions/go${GIMME_GO_VERSION}.${GIMME_OS}.${GIMME_ARCH}"
+ENV PATH ${GOROOT}/bin:${PATH}
+
+ENV GOPATH "/go"
+ENV PATH $GOPATH/bin:$PATH
+ENV LD_LIBRARY_PATH /usr/local/cuda/extras/CUPTI/lib64:$LD_LIBRARY_PATH
+ENV LD_LIBRARY_PATH /usr/local/cuda-10.1/compat/lib.real:$LD_LIBRARY_PATH
+
+# Install Go packages
+RUN go get -u github.com/golang/dep/cmd/dep
 
 # Get Go bindings
 ENV PKG github.com/rai-project/mxnet

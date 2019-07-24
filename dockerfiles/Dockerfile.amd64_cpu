@@ -7,6 +7,7 @@ ARG BUILD_DATE
 ARG VCS_REF
 ARG VCS_URL
 ARG VERSION
+ARG ARCH
 LABEL org.mlmodelscope.mxnet.agent.build-date=$BUILD_DATE \
       org.mlmodelscope.mxnet.agent.name="mxnet agent" \
       org.mlmodelscope.mxnet.agent.description="" \
@@ -23,7 +24,8 @@ ENV PKG github.com/rai-project/mxnet
 WORKDIR $GOPATH/src/$PKG
 
 RUN git clone --depth=1 https://${PKG}.git . && \
-    dep ensure -vendor-only -v && \
-    go build -tags=nogpu -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
+    dep ensure -vendor-only -v
+
+RUN go build -tags=nogpu -a -installsuffix cgo -ldflags "-s -w -X ${PKG}/Version=${VERSION} -X ${PKG}/GitCommit=${VCS_REF} -X ${PKG}/BuildDate=${BUILD_DATE}"&& \
     go install -tags=nogpu && \
     rm -fr vendor

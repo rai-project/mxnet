@@ -125,7 +125,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download model graph"),
 		)
-		_, err := downloadmanager.DownloadFile(
+		_, _, err := downloadmanager.DownloadFile(
 			p.GetGraphUrl(),
 			p.GetGraphPath(),
 			downloadmanager.MD5Sum(p.GetGraphChecksum()),
@@ -137,7 +137,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download model weights"),
 		)
-		_, err = downloadmanager.DownloadFile(
+		_, _, err = downloadmanager.DownloadFile(
 			p.GetWeightsUrl(),
 			p.GetWeightsPath(),
 			downloadmanager.MD5Sum(p.GetWeightsChecksum()),
@@ -151,7 +151,7 @@ func (p *ImagePredictor) download(ctx context.Context) error {
 		span.LogFields(
 			olog.String("event", "download features"),
 		)
-		_, err := downloadmanager.DownloadFile(
+		_, _, err := downloadmanager.DownloadFile(
 			p.GetFeaturesUrl(),
 			p.GetFeaturesPath(),
 			downloadmanager.MD5Sum(p.GetFeaturesChecksum()),
