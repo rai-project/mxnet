@@ -8,7 +8,7 @@ jobs:
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
           cd dockerfiles
           make docker_build_cpu
-          ./push_cpu.sh
+          ./push.sh docker_push_cpu
   - job: GPU
     timeoutInMinutes: 0
     pool:
@@ -18,7 +18,17 @@ jobs:
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
           cd dockerfiles
           make docker_build_gpu
-          ./push_gpu.sh
+          ./push.sh docker_push_gpu
+  - job: GPU_NGC
+    timeoutInMinutes: 0
+    pool:
+      vmImage: "Ubuntu 16.04"
+    steps:
+      - bash: |
+          docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
+          cd dockerfiles
+          make docker_build_gpu_ngc
+          ./push.sh docker_push_gpu_ngc
   - job: CPU_Agent
     timeoutInMinutes: 0
     pool:
@@ -28,7 +38,7 @@ jobs:
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
           cd mxnet-agent/dockerfiles
           make docker_build_cpu
-          ./push_cpu.sh
+          ./push.sh docker_push_cpu
   - job: GPU_Agent
     timeoutInMinutes: 0
     pool:
@@ -38,16 +48,28 @@ jobs:
           docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
           cd mxnet-agent/dockerfiles
           make docker_build_gpu
-          ./push_gpu.sh
+          ./push.sh docker_push_gpu
+  - job: GPU_NGC_Agent
+    timeoutInMinutes: 0
+    pool:
+      vmImage: "Ubuntu 16.04"
+    steps:
+      - bash: |
+          docker login -u $(DOCKER_USERNAME) -p $(DOCKER_PASSWORD)
+          cd mxnet-agent/dockerfiles
+          make docker_build_gpu_ngc
+          ./push.sh docker_push_gpu_ngc
   - job: Update_Microbadger
     dependsOn:
       - CPU
       - GPU
+      - GPU_NGC
     steps:
       - script: "curl -X POST https://hooks.microbadger.com/images/carml/mxnet/vdQvZQSNuiSvR9dzwryuJbvyfwc="
   - job: Update_Microbadger_Agent
     dependsOn:
       - CPU_Agent
       - GPU_Agent
+      - GPU_NGC_Agent
     steps:
       - script: "curl -X POST https://hooks.microbadger.com/images/carml/mxnet-agent/TDLR5KTXvgfzyKLfKBn71v2hmjE="
