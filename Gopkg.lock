@@ -1702,7 +1702,7 @@
     "predictor",
   ]
   pruneopts = "T"
-  revision = "9be9a34de30607a93ee93d0858d15a7a8292727c"
+  revision = "d4bda595109b0fc420889bb391f4acff73efae85"
 
 [[projects]]
   branch = "master"
