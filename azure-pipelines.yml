@@ -30,6 +30,8 @@ jobs:
           make docker_build_gpu_ngc
           ./push.sh docker_push_gpu_ngc
   - job: CPU_Agent
+    dependsOn:
+      - CPU
     timeoutInMinutes: 0
     pool:
       vmImage: "Ubuntu 16.04"
@@ -40,6 +42,8 @@ jobs:
           make docker_build_cpu
           ./push.sh docker_push_cpu
   - job: GPU_Agent
+    dependsOn:
+      - GPU
     timeoutInMinutes: 0
     pool:
       vmImage: "Ubuntu 16.04"
@@ -50,6 +54,8 @@ jobs:
           make docker_build_gpu
           ./push.sh docker_push_gpu
   - job: GPU_NGC_Agent
+    dependsOn:
+      - GPU_NGC
     timeoutInMinutes: 0
     pool:
       vmImage: "Ubuntu 16.04"

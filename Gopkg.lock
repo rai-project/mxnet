@@ -647,6 +647,14 @@
   version = "v1"
 
 [[projects]]
+  branch = "master"
+  digest = "0:"
+  name = "github.com/glendc/go-external-ip"
+  packages = ["."]
+  pruneopts = "T"
+  revision = "139229dcdddd5ad18f5c4912fcb905a4079e2a36"
+
+[[projects]]
   digest = "0:"
   name = "github.com/go-logfmt/logfmt"
   packages = ["."]
@@ -1494,7 +1502,7 @@
     "steps",
   ]
   pruneopts = "T"
-  revision = "6461e39f9abccfb79ff6943fb36cc303f9b28915"
+  revision = "93e476893f9e9d186315a13803106a552030e05f"
 
 [[projects]]
   branch = "master"
@@ -1539,7 +1547,7 @@
     "writer",
   ]
   pruneopts = "T"
-  revision = "9547fb5c5a8f8525db8584b7e45524859dd22b90"
+  revision = "4a55b9cdb00f9fa9fcd00a9ff8424a42ad70edd0"
 
 [[projects]]
   branch = "master"
@@ -1702,7 +1710,7 @@
     "predictor",
   ]
   pruneopts = "T"
-  revision = "d4bda595109b0fc420889bb391f4acff73efae85"
+  revision = "5f4e5f3e18347cc72f19f42617fc701d8147e08d"
 
 [[projects]]
   branch = "master"
