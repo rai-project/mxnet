@@ -6,7 +6,7 @@ MODELNAME=$3
 NUMPREDS=5
 DUPLICATE_INPUT=$(($NUMPREDS * $BATCHSIZE))
 OUTPUTFOLDER=output_gpu
-DATABASE_NAME=carml
+DATABASE_NAME=carml_mxnet
 GPU_DEVICE_ID=0
 
 cd ..
@@ -16,7 +16,7 @@ if [ -f tensorflow-agent ]; then
 fi
 go build -tags=nolibjpeg
 
-export TF_CUDNN_USE_AUTOTUNE=0
+export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
 export CARML_TF_DISABLE_OPTIMIZATION=0
 export CUDA_LAUNCH_BLOCKING=0
 

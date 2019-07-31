@@ -68,6 +68,44 @@ Refer to [External services](https://github.com/rai-project/tensorflow#external-
 
 Refer to [Use within TensorFlow Docker Images](https://github.com/rai-project/tensorflow#use-within-tensorflow-docker-images).
 
+Continue if you have
+
+* installed all the dependencies
+* downloaded carml_config_example.yml to $HOME as .carml_config.yml
+* launched docker external services on the host machine of the docker container you are going to use
+
+, otherwise read above
+
+An example of using NGC MXNet docker image: 
+
+```
+nvidia-docker run --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -it --privileged=true --network host \
+-v $GOPATH:/workspace/go1.12/global \
+-v $GOROOT:/workspace/go1.12_root \
+-v ~/.carml_config.yml:/root/.carml_config.yml \
+nvcr.io/nvidia/mxnet:19.06-py2
+```
+
+NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
+   insufficient for TensorFlow.  NVIDIA recommends the use of the following flags:
+   ```nvidia-docker run --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 ...```
+
+Within the container, set up the environment so that the agent can find the TensorFlow C library.
+
+```
+export GOPATH=/workspace/go1.12/global
+export GOROOT=/workspace/go1.12_root
+export PATH=$GOROOT/bin:$PATH
+
+export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64/
+export CGO_LDFLAGS="${CGO_LDFLAGS} -L /usr/local/cuda/lib64 -L /usr/local/cuda/extras/CUPTI/lib64/"
+
+export PATH=$PATH:$(go env GOPATH)/bin  
+export GODEBUG=cgocheck=0  
+cd $GOPATH/src/github.com/rai-project/mxnet/mxnet-agent  
+```
+
+
 ## Usage
 
 Refer to [Usage](https://github.com/rai-project/tensorflow#usage)

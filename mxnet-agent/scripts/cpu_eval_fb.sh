@@ -16,7 +16,7 @@ fi
 
 go build -tags=nolibjpeg
 
-export TF_CUDNN_USE_AUTOTUNE=0
+export MXNET_CUDNN_AUTOTUNE_DEFAULT=0
 export CARML_TF_DISABLE_OPTIMIZATION=0
 export CUDA_LAUNCH_BLOCKING=0
 
