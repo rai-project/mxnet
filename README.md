@@ -83,7 +83,7 @@ nvidia-docker run --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 -it 
 -v $GOPATH:/workspace/go1.12/global \
 -v $GOROOT:/workspace/go1.12_root \
 -v ~/.carml_config.yml:/root/.carml_config.yml \
-nvcr.io/nvidia/mxnet:19.06-py2
+nvcr.io/nvidia/mxnet:19.06-py3
 ```
 
 NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
