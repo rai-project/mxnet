@@ -2,7 +2,6 @@ package predictor
 
 import (
 	"context"
-	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -11,7 +10,6 @@ import (
 	"github.com/rai-project/dlframework/framework/agent"
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predictor"
-	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/mxnet"
 	"github.com/rai-project/tracer"
 	"gorgonia.org/tensor"
@@ -77,26 +75,6 @@ func (p *ImageClassificationPredictor) Predict(ctx context.Context, data interfa
 	span, ctx := tracer.StartSpanFromContext(ctx, tracer.APPLICATION_TRACE, "predict")
 	defer span.Finish()
 
-	if p.TraceLevel() >= tracer.FRAMEWORK_TRACE {
-		// define profiling options
-		poptions := map[string]gomxnet.ProfileMode{
-			"profile_all":        gomxnet.ProfileAllEnable,
-			"profile_symbolic":   gomxnet.ProfileSymbolicOperatorsDisable,
-			"profile_imperative": gomxnet.ProfileImperativeOperatorsDisable,
-			"profile_memory":     gomxnet.ProfileMemoryDisable,
-			"profile_api":        gomxnet.ProfileApiDisable,
-			"continuous_dump":    gomxnet.ProfileContinuousDumpDisable,
-		}
-		if profile, err := gomxnet.NewProfile(poptions, filepath.Join(p.WorkDir, "profile")); err == nil {
-			profile.Start()
-			defer func() {
-				profile.Stop()
-				profile.Publish(context.WithValue(ctx, "graph_path", p.GetGraphPath()))
-				profile.Delete()
-			}()
-		}
-	}
-
 	if data == nil {
 		return errors.New("input data nil")
 	}
@@ -105,17 +83,10 @@ func (p *ImageClassificationPredictor) Predict(ctx context.Context, data interfa
 		return errors.New("input data is not slice of go tensors")
 	}
 
-	err := p.cuptiStart(ctx)
-	if err != nil {
-		return err
-	}
-
-	err = p.predictor.Predict(ctx, input)
+	err := p.predictor.Predict(ctx, input)
 	if err != nil {
 		return errors.Wrapf(err, "failed to perform Predict")
 	}
-
-	p.cuptiClose()
 
 	return nil
 }

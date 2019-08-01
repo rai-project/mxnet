@@ -3,7 +3,7 @@
 DATABASE_ADDRESS=$1
 BATCHSIZE=$2
 MODEL_NAME=$3
-FRAMEWORK_NAME=MXNet
+FRAMEWORK_NAME=mxnet
 OUTPUT_FOLDER=output_gpu
 DATABASE_NAME=carml_mxnet
 
@@ -20,7 +20,7 @@ go build -tags=nolibjpeg
 
 echo "Start to run model analysis"
 
-./mxnet-agent evaluation model info --framework_name=$FRAMEWORK_NAME--database_address=$DATABASE_ADDRESS --database_name=$DATABASE_NAME --model_name=$MODEL_NAME --sort_output --format=csv,table --plot_all --output="$OUTPUT_FOLDER/$MODEL_NAME/model_info"
+./mxnet-agent evaluation model info --framework_name=$FRAMEWORK_NAME --database_address=$DATABASE_ADDRESS --database_name=$DATABASE_NAME --model_name=$MODEL_NAME --sort_output --format=csv,table --plot_all --output="$OUTPUT_FOLDER/$MODEL_NAME/model_info"
 
 echo "Start to run layer analysis"
 

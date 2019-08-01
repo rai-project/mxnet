@@ -11,7 +11,6 @@ import (
 	"github.com/rai-project/dlframework/framework/options"
 	common "github.com/rai-project/dlframework/framework/predictor"
 	"github.com/rai-project/downloadmanager"
-	cupti "github.com/rai-project/go-cupti"
 	gomxnet "github.com/rai-project/go-mxnet/mxnet"
 	"github.com/rai-project/tracer"
 	"gorgonia.org/tensor"
@@ -20,7 +19,6 @@ import (
 type ImagePredictor struct {
 	common.ImagePredictor
 	predictor *gomxnet.Predictor
-	cu        *cupti.CUPTI
 }
 
 func (p *ImagePredictor) Close() error {
@@ -233,25 +231,4 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	p.predictor = pred
 
 	return nil
-}
-
-func (p *ImagePredictor) cuptiStart(ctx context.Context) error {
-	if !p.UseGPU() || p.TraceLevel() < tracer.HARDWARE_TRACE {
-		return nil
-	}
-	cu, err := cupti.New(cupti.Context(ctx), cupti.SamplingPeriod(0))
-	if err != nil {
-		return err
-	}
-	p.cu = cu
-	return nil
-}
-
-func (p *ImagePredictor) cuptiClose() {
-	if p.cu == nil {
-		return
-	}
-	p.cu.Wait()
-	p.cu.Close()
-	p.cu = nil
 }
