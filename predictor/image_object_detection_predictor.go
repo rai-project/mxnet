@@ -97,7 +97,14 @@ func (p *ObjectDetectionPredictor) Predict(ctx context.Context, data interface{}
 		return errors.New("input data is not slice of go tensors")
 	}
 
-	err := p.predictor.Predict(ctx, input)
+	fst := input[0]
+	joined, err := fst.Concat(0, input[1:]...)
+	if err != nil {
+		return errors.Wrap(err, "unable to concat tensors")
+	}
+	joined.Reshape(append([]int{len(input)}, fst.Shape()...)...)
+
+	err = p.predictor.Predict(ctx, []*gotensor.Dense{joined})
 	if err != nil {
 		return errors.Wrapf(err, "failed to perform Predict")
 	}

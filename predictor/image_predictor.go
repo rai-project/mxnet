@@ -203,9 +203,10 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 	default:
 		panic("currently only supports float32")
 	}
+	batchSize := p.BatchSize()
 	in := options.Node{
 		Key:   inputLayer,
-		Shape: append([]int{1}, preprocessOpts.Dims...),
+		Shape: append([]int{batchSize}, preprocessOpts.Dims...),
 		Dtype: dtype,
 	}
 
@@ -220,7 +221,7 @@ func (p *ImagePredictor) loadPredictor(ctx context.Context) error {
 		options.Device(device, 0),
 		options.Graph(symbol),
 		options.Weights(params),
-		options.BatchSize(p.BatchSize()),
+		options.BatchSize(batchSize),
 		options.InputNodes([]options.Node{in}),
 	)
 
