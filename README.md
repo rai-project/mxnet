@@ -87,10 +87,10 @@ nvcr.io/nvidia/mxnet:19.06-py3
 ```
 
 NOTE: The SHMEM allocation limit is set to the default of 64MB.  This may be
-   insufficient for TensorFlow.  NVIDIA recommends the use of the following flags:
+   insufficient for MXNet.  NVIDIA recommends the use of the following flags:
    ```nvidia-docker run --shm-size=1g --ulimit memlock=-1 --ulimit stack=67108864 ...```
 
-Within the container, set up the environment so that the agent can find the TensorFlow C library.
+Within the container, set up the environment so that the agent can find the MXNet installation.
 
 ```
 export GOPATH=/workspace/go1.12/global
